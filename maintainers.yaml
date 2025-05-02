@@ -1,0 +1,22 @@
+identifier: bitcoin-32359
+maintainers:
+- npub1ahaz04ya9tehace3uy39hdhdryfvdkve9qdndkqp3tvehs6h8s5slq45hy
+relays:
+- wss://relay.nostr.wirednet.jp
+- wss://nostr.land
+- wss://e.nos.lol
+- wss://relay.nostr.bg
+- wss://nostr-verified.wellorder.net
+- wss://relay.primal.net
+- wss://eden.nostr.land
+- wss://offchain.pub
+- wss://nostr21.com
+- wss://relay.damus.io
+- ws://127.0.0.1:6102
+- wss://nostr.mom
+- wss://nos.lol
+- wss://nostr.wine
+- wss://wc1.current.ninja
+- wss://nostr.bitcoiner.social
+- ws://gnostr.org
+- wss://gnostr.org
