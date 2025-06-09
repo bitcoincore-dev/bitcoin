@@ -322,6 +322,46 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux" AND CMAKE_SIZEOF_VOID_P EQUAL 4)
   )
 endif()
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    message(STATUS "Using Clang compiler.")
+    message(STATUS "Clang version: ${CMAKE_CXX_COMPILER_VERSION}")
+
+    # You can also perform version-specific checks
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "14.0.0")
+        message(STATUS "Clang is version 14.0.0 or newer.")
+        # Add Clang 14+ specific options
+    else()
+        message(STATUS "Clang is older than 14.0.0.")
+        # Add options for older Clang versions
+    endif()
+
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    message(STATUS "Using Apple Clang compiler.")
+    message(STATUS "Apple Clang version: ${CMAKE_CXX_COMPILER_VERSION}")
+    # Specific logic for Apple Clang
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    message(STATUS "Using GNU (GCC) compiler.")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    message(STATUS "Using Microsoft Visual C++ compiler.")
+else()
+    message(STATUS "Unknown compiler ID: ${CMAKE_CXX_COMPILER_ID}")
+endif()
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    message(STATUS "Detected LLVM-based compiler (Clang/AppleClang) version: ${CMAKE_CXX_COMPILER_VERSION}")
+
+    # You can then use this version for conditional logic
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "18.0.0")
+        message(STATUS "LLVM version is 18.0.0 or newer.")
+        # Add features/flags for newer LLVM
+    else()
+        message(STATUS "LLVM version is older than 18.0.0.")
+        # Add features/flags for older LLVM
+    endif()
+else()
+    message(STATUS "Not using a Clang/LLVM-based compiler (Compiler ID: ${CMAKE_CXX_COMPILER_ID})")
+endif()
+
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   target_compile_definitions(core_interface INTERFACE OBJC_OLD_DISPATCH_PROTOTYPES=0)
   # These flags are specific to ld64, and may cause issues with other linkers.
