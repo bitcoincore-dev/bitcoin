@@ -13,6 +13,9 @@ pushd ./build || exit
 
 if command -v brew &> /dev/null
 then
+    brew install llvm
+    export LDFLAGS="-L/usr/local/opt/llvm/lib"
+    export CPPFLAGS="-I/usr/local/opt/llvm/include"
     CC=$(brew --prefix llvm)/bin/clang CXX=$(brew --prefix llvm)/bin/clang++
 fi
 
