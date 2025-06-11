@@ -19,7 +19,7 @@ fi
 # Run CMake, explicitly setting the C++ standard to 20
 # We'll also explicitly set the C++ compiler to clang++ (common on macOS)
 # If you prefer g++, replace 'clang++' with 'g++'
-cmake -DCMAKE_CXX_STANDARD=20 -DCMAKE_CXX_COMPILER=$compiler -S ../
+cmake -DCMAKE_CXX_STANDARD=20 -DCMAKE_CXX_COMPILER=$compiler -DBUILD_GUI=ON -LH -S ../
 
 # Now, try to build again
 make
