@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
             if (cmd.show_help_all) tfm::format(std::cout, HELP_EXTRA);
             return cmd.show_help ? EXIT_SUCCESS : EXIT_FAILURE;
         } else if (cmd.command == "gui") {
-            args.emplace_back(cmd.use_multiprocess ? "bitcoin-gui" : "bitcoin-qt");
+            args.emplace_back(cmd.use_multiprocess ? "bitcoin-qt" : "bitcoin-gui");
         } else if (cmd.command == "node") {
             args.emplace_back(cmd.use_multiprocess ? "bitcoin-node" : "bitcoind");
         } else if (cmd.command == "rpc") {
