@@ -410,16 +410,17 @@ void BitcoinGUI::createActions()
                 QAction* action = m_open_wallet_menu->addAction(name);
 
                 if (loaded || is_legacy) {
-                    // This wallet is already loaded or it is a legacy wallet
                     action->setEnabled(false);
                     continue;
                 }
 
-                connect(action, &QAction::triggered, [this, path] {
+                // Create a local copy of path to capture
+                const auto captured_path = path;
+                connect(action, &QAction::triggered, [this, captured_path] {
                     auto activity = new OpenWalletActivity(m_wallet_controller, this);
                     connect(activity, &OpenWalletActivity::opened, this, &BitcoinGUI::setCurrentWallet, Qt::QueuedConnection);
                     connect(activity, &OpenWalletActivity::opened, rpcConsole, &RPCConsole::setCurrentWallet, Qt::QueuedConnection);
-                    activity->open(path);
+                    activity->open(captured_path);
                 });
             }
             if (m_open_wallet_menu->isEmpty()) {
@@ -475,10 +476,12 @@ void BitcoinGUI::createActions()
                 name.replace(QChar('&'), QString("&&"));
                 QAction* action = m_migrate_wallet_menu->addAction(name);
 
-                connect(action, &QAction::triggered, [this, wallet_name] {
+                // Create a local copy of wallet_name to capture
+                const auto captured_wallet_name = wallet_name;
+                connect(action, &QAction::triggered, [this, captured_wallet_name] {
                     auto activity = new MigrateWalletActivity(m_wallet_controller, this);
                     connect(activity, &MigrateWalletActivity::migrated, this, &BitcoinGUI::setCurrentWallet);
-                    activity->migrate(wallet_name);
+                    activity->migrate(captured_wallet_name);
                 });
             }
             if (m_migrate_wallet_menu->isEmpty()) {
