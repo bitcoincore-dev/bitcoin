@@ -772,12 +772,17 @@ void RPCConsole::setClientModel(ClientModel *model, int bestblock_height, int64_
         ui->blocksDir->setText(model->blocksDir());
         ui->startupTime->setText(model->formatClientStartupTime());
         ui->networkName->setText(QString::fromStdString(Params().GetChainTypeString()));
-        if(Params().GetChainTypeString() == "signet")
+        if(Params().GetChainTypeString() ==  "signet")
         {
             std::vector<uint8_t> vChallenge = Params().GetConsensus().signet_challenge;
-            ui->networkName->setText(QString::fromStdString("Signet: " + challengeToString(vChallenge).substr(0, 8)));
-            const QString title = tr("Node window - [signet] (%1)").arg(challengeToString(vChallenge).substr(0, 8));
-     this->setWindowTitle(title);
+            std::string challengeString = challengeToString(vChallenge);
+            ui->networkName->setText(
+                    QString::fromStdString(
+                        "Signet: (" + challengeString.substr(0, 8)
+                        ) + QString::fromStdString(")")
+                    );
+            const QString title = tr("Node window - [signet] (%1)").arg(challengeString.substr(0,8));
+             this->setWindowTitle(title);
         }
 
         //Setup autocomplete and attach it
@@ -1434,6 +1439,6 @@ void RPCConsole::updateWindowTitle()
 
     const QString chainType = QString::fromStdString(Params().GetChainTypeString());
     //
-    const QString title = tr("Node window - [%1]").arg(chainType);
+    const QString title = tr("Node window - [%1] (%2)").arg(chainType).arg("");
     this->setWindowTitle(title);
 }
