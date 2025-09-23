@@ -651,7 +651,7 @@ bool RPCConsole::eventFilter(QObject* obj, QEvent *event)
     return QWidget::eventFilter(obj, event);
 }
 
-std::string uint8_vector_to_hex_string(const std::vector<uint8_t>& v)
+std::string RPCConsole::challengeToString(const std::vector<uint8_t>& v)
 {
     std::string result;
     result.reserve(v.size() * 2);   // two digits per character
@@ -772,10 +772,12 @@ void RPCConsole::setClientModel(ClientModel *model, int bestblock_height, int64_
         ui->blocksDir->setText(model->blocksDir());
         ui->startupTime->setText(model->formatClientStartupTime());
         ui->networkName->setText(QString::fromStdString(Params().GetChainTypeString()));
-        if(Params().GetChainTypeString() ==  "signet")
+        if(Params().GetChainTypeString() == "signet")
         {
-            std::vector<uint8_t> zzz= Params().GetConsensus().signet_challenge;
-            ui->networkName->setText(QString::fromStdString("Signet: " +uint8_vector_to_hex_string(zzz).substr(0, 8)));
+            std::vector<uint8_t> vChallenge = Params().GetConsensus().signet_challenge;
+            ui->networkName->setText(QString::fromStdString("Signet: " + challengeToString(vChallenge).substr(0, 8)));
+            const QString title = tr("Node window - [signet] (%1)").arg(challengeToString(vChallenge).substr(0, 8));
+     this->setWindowTitle(title);
         }
 
         //Setup autocomplete and attach it
@@ -1431,6 +1433,7 @@ void RPCConsole::updateWindowTitle()
     if (chain == ChainType::MAIN) return;
 
     const QString chainType = QString::fromStdString(Params().GetChainTypeString());
+    //
     const QString title = tr("Node window - [%1]").arg(chainType);
     this->setWindowTitle(title);
 }
