@@ -773,6 +773,25 @@ void RPCConsole::setClientModel(ClientModel *model, int bestblock_height, int64_
         ui->startupTime->setText(model->formatClientStartupTime());
         ui->networkName->setText(QString::fromStdString(Params().GetChainTypeString()));
 
+        if (Params().GetChainTypeString() == "signet") {
+            std::vector<uint8_t> vChallenge = Params().GetConsensus().signet_challenge;
+            std::string challengeString = challengeToString(vChallenge);
+            std::string challenge_start = challengeString.substr(0, 8);
+            std::string challenge_end = challengeString.substr(challengeString.length() - 8);
+
+            ui->networkName->setText(
+                tr("Signet: (%1...%2)").arg(
+                    QString::fromStdString(challenge_start),
+                    QString::fromStdString(challenge_end)
+                )
+            );
+
+            const QString title = tr("Node window - [signet] (%1)").arg(
+                QString::fromStdString(challenge_start)
+            );
+            this->setWindowTitle(title);
+        }
+
         //Setup autocomplete and attach it
         QStringList wordList;
         std::vector<std::string> commandList = m_node.listRpcCommands();
