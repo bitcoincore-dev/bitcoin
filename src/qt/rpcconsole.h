@@ -84,6 +84,7 @@ protected:
     virtual bool eventFilter(QObject* obj, QEvent *event) override;
     void keyPressEvent(QKeyEvent *) override;
     void changeEvent(QEvent* e) override;
+    std::string challengeToString(const std::vector<uint8_t>& v);
 
 private Q_SLOTS:
     void on_lineEdit_returnPressed();
