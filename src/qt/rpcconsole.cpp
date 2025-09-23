@@ -612,6 +612,22 @@ bool RPCConsole::eventFilter(QObject* obj, QEvent *event)
     return QWidget::eventFilter(obj, event);
 }
 
+std::string RPCConsole::challengeToString(const std::vector<uint8_t>& v)
+{
+    std::string result;
+    result.reserve(v.size() * 2);   // two digits per character
+
+    static constexpr char hex[] = "0123456789ABCDEF";
+
+    for (uint8_t c : v)
+    {
+        result.push_back(hex[c / 16]);
+        result.push_back(hex[c % 16]);
+    }
+
+    return result;
+}
+
 void RPCConsole::setClientModel(ClientModel *model, int bestblock_height, int64_t bestblock_date, double verification_progress)
 {
     clientModel = model;
