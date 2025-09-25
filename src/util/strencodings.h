@@ -312,6 +312,11 @@ std::string ToUpper(std::string_view str);
 std::string Capitalize(std::string str);
 
 /**
+ * Converts a signet_challenge to std::string
+ */
+std::string ChallengeToStdString(const std::vector<uint8_t>& v);
+
+/**
  * Parse a string with suffix unit [k|K|m|M|g|G|t|T].
  * Must be a whole integer, fractions not allowed (0.5t), no whitespace or +-
  * Lowercase units are 1000 base. Uppercase units are 1024 base.
