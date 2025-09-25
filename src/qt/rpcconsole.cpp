@@ -612,22 +612,6 @@ bool RPCConsole::eventFilter(QObject* obj, QEvent *event)
     return QWidget::eventFilter(obj, event);
 }
 
-std::string RPCConsole::challengeToString(const std::vector<uint8_t>& v)
-{
-    std::string result;
-    result.reserve(v.size() * 2);
-
-    static constexpr char hex[] = "0123456789ABCDEF";
-
-    for (uint8_t c : v)
-    {
-        result.push_back(hex[c / 16]);
-        result.push_back(hex[c % 16]);
-    }
-
-    return result;
-}
-
 void RPCConsole::setClientModel(ClientModel *model, int bestblock_height, int64_t bestblock_date, double verification_progress)
 {
     clientModel = model;
@@ -733,24 +717,42 @@ void RPCConsole::setClientModel(ClientModel *model, int bestblock_height, int64_
         ui->blocksDir->setText(model->blocksDir());
         ui->startupTime->setText(model->formatClientStartupTime());
         ui->networkName->setText(QString::fromStdString(Params().GetChainTypeString()));
+        ui->networkName->setWordWrap(true);
 
         if (Params().GetChainTypeString() == "signet") {
             std::vector<uint8_t> vChallenge = Params().GetConsensus().signet_challenge;
-            std::string challengeString = challengeToString(vChallenge);
-            std::string challenge_start = challengeString.substr(0, 8);
-            std::string challenge_end = challengeString.substr(challengeString.length() - 8);
+            std::string challengeString = ChallengeToStdString(vChallenge);
+            if (challengeString.length() > 16 ){ // a sane minimum
+                std::string challenge_fingerprint = challengeString.substr(0, 8);
+                std::string challenge_end = challengeString.substr(challengeString.length() - 8);
+                const QString title = tr("Node window - [signet] (%1)").arg(
+                    QString::fromStdString(challenge_fingerprint)
+                );
+                // display fingerprint in Node window title
+                this->setWindowTitle(title);
+            } else {
+                // A trivial challenge is supported. Example: signetchallenge=51
+                std::string challenge_fingerprint = challengeString.substr(0, challengeString.length());
+                std::string challenge_end = challengeString.substr(challengeString.length() - 1);
+                const QString title = tr("Node window - [signet] (%1)").arg(
+                    QString::fromStdString(challenge_fingerprint)
+                );
+                // display fingerprint in Node window title
+                this->setWindowTitle(title);
 
+
+            }
+            if (challengeString.length() > (size_t)ui->networkName->width()) {
+                challengeString.insert(0, "\n"); // break after Signet:
+                challengeString.insert(65, "\n"); // then split at (130/2)
+            }
+
+            ui->networkName->setToolTip(
+                    tr("Signet challenge: %1").arg(QString::fromStdString(challengeString))
+                    );
             ui->networkName->setText(
-                tr("Signet: (%1...%2)").arg(
-                    QString::fromStdString(challenge_start),
-                    QString::fromStdString(challenge_end)
-                )
-            );
-
-            const QString title = tr("Node window - [signet] (%1)").arg(
-                QString::fromStdString(challenge_start)
-            );
-            this->setWindowTitle(title);
+                    tr("%1 (%2)").arg("Signet:").arg(QString::fromStdString(challengeString))
+                    );
         }
 
         //Setup autocomplete and attach it
