@@ -383,6 +383,25 @@ std::string Capitalize(std::string str)
     return str;
 }
 
+std::string ChallengeToStdString(const std::vector<uint8_t>& v)
+{
+    std::string result;
+    result.reserve(v.size() * 2);
+
+    static constexpr char hex[] = "0123456789ABCDEF";
+
+    for (uint8_t c : v)
+    {
+        result.push_back(hex[c / 16]);
+        result.push_back(hex[c % 16]);
+    }
+    if (IsHex(result)) {
+        return result;
+    } else {
+        return "Invalid signet_challenge";
+        }
+    }
+
 std::optional<uint64_t> ParseByteUnits(std::string_view str, ByteUnit default_multiplier)
 {
     if (str.empty()) {
