@@ -169,7 +169,7 @@ void MempoolDetail::drawFeeRects( qreal bottom, int maxwidth, int display_up_to_
 
 			fee_subtotal_txcount.resize(m_clientmodel->m_mempool_feehist[0].second.size());
             LogPrintf("\n%s",m_clientmodel->m_mempool_feehist[0].second.size());
-			QColor pen_color = colors[(i < static_cast<int>(colors.size()) ? i : static_cast<int>(colors.size())-1)];
+			//QColor pen_color = colors[(i < static_cast<int>(colors.size()) ? i : static_cast<int>(colors.size())-1)];
 
             if(ADD_TOTAL_TEXT){
 
@@ -348,9 +348,9 @@ void MempoolDetail::drawChart()
 
         QColor pen_color = colors[(i < static_cast<int>(colors.size()) ? i : static_cast<int>(colors.size())-1)];
         QColor brush_color = pen_color;
-        //mempool paths 
-        pen_color.setAlpha(255);
-        brush_color.setAlpha(200);
+        //mempool paths
+        pen_color.setAlpha(0);
+        brush_color.setAlpha(0);
         if (m_selected_range >= 0 && m_selected_range != i) {
             //dimmer
             pen_color.setAlpha(127);

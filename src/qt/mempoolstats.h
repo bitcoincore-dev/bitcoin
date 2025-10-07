@@ -52,7 +52,7 @@ public Q_SLOTS:
     qreal maxheight_g,
     qreal maxwidth,
     qreal bottom,
-    size_t max_txcount_graph,
+    CAmount max_fee_rate_graph,
     QFont LABELFONT
 );
     void drawFeeRanges(qreal bottom, QFont LABELFONT);

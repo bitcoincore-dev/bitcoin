@@ -50,21 +50,20 @@ void MempoolStats::drawHorzLines(
         qreal maxheight_g,
         qreal maxwidth,
         qreal bottom,
-        size_t max_txcount_graph,
+        CAmount max_fee_rate_graph,
         QFont LABELFONT){
 
     QPainterPath tx_count_grid_path(current_x_bottom);
-    int bottomTxCount = 0;
+    CAmount bottomFeeRate = 0;
     for (int i=0; i < amount_of_h_lines; i++)
     {
         qreal lY = bottom-i*(maxheight_g/(amount_of_h_lines-1));
         //TODO: use text rect width to adjust
         tx_count_grid_path.moveTo(GRAPH_PADDING_LEFT-0, lY);
         tx_count_grid_path.lineTo(GRAPH_PADDING_LEFT+maxwidth, lY);
-        //tx_count_grid_path.lineTo(GRAPH_PADDING_LEFT, lY);
 
-        size_t grid_tx_count =
-            (float)i*(max_txcount_graph-bottomTxCount)/(amount_of_h_lines-1) + bottomTxCount;
+        CAmount grid_fee_rate =
+            (float)i*(max_fee_rate_graph-bottomFeeRate)/(amount_of_h_lines-1) + bottomFeeRate;
 
         if (MEMPOOL_GRAPH_LOGGING){
 
@@ -75,13 +74,10 @@ void MempoolStats::drawHorzLines(
         //Add text ornament
         if (ADD_TEXT) {
 
-            QGraphicsTextItem *item_tx_count =
-                //m_scene->addText(QString::number(grid_tx_count/100).rightJustified(4, ' ')+QString("MvB"), LABELFONT);
-                m_scene->addText(QString::number(grid_tx_count/1).rightJustified(4, ' ')+QString("vB"), LABELFONT);
-            //item_tx_count->setPos(GRAPH_PADDING_LEFT+maxwidth, lY-(item_tx_count->boundingRect().height()/2));
-            //TODO: use text rect width to adjust
-            item_tx_count->setDefaultTextColor(Qt::white);
-            item_tx_count->setPos(GRAPH_PADDING_LEFT-60, lY-(item_tx_count->boundingRect().height()/2));
+            QGraphicsTextItem *item_fee_rate =
+                m_scene->addText(QString::number(grid_fee_rate/1).rightJustified(4, ' ')+QString(" sat/vB"), LABELFONT);
+            item_fee_rate->setDefaultTextColor(Qt::white);
+            item_fee_rate->setPos(GRAPH_PADDING_LEFT-60, lY-(item_fee_rate->boundingRect().height()/2));
 
         }
     }
@@ -246,26 +242,20 @@ void MempoolStats::drawChart()
             }
         }
 
-        // make a nice y-axis scale
-        const int amount_of_h_lines = AMOUNT_OF_H_LINES;
-        if (max_txcount > 0) {
-            int val = qFloor(log10(1.0*max_txcount/amount_of_h_lines));
-            int stepbase = qPow(10.0f, val);
-            int step = qCeil((1.0*max_txcount/amount_of_h_lines) / stepbase) * stepbase;
-            max_txcount_graph = step*amount_of_h_lines;
-            if (MEMPOOL_GRAPH_LOGGING){
-
-                LogPrintf("max_txcount_graph = %s\n",max_txcount_graph);
-
-            }
+        CAmount max_fee_rate_graph = 0;
+        if (!m_clientmodel->m_mempool_feehist.empty()) {
+            const auto& last_fee_info = m_clientmodel->m_mempool_feehist[0].second.back();
+            max_fee_rate_graph = last_fee_info.fee_to;
         }
+
+        int amount_of_h_lines = 10; // Declared and initialized here
 
         // calculate the x axis step per sample
         // we ignore the time difference of collected samples due to locking issues
         const qreal x_increment = 1.0 * (width() - (GRAPH_PADDING_LEFT + GRAPH_PADDING_RIGHT) ) / m_clientmodel->m_mempool_max_samples; //samples.size();
         QPointF current_x_bottom = QPointF(current_x,bottom);
 
-        drawHorzLines(x_increment, current_x_bottom, amount_of_h_lines, maxheight_g, maxwidth, bottom, max_txcount_graph, gridFont);
+        drawHorzLines(x_increment, current_x_bottom, amount_of_h_lines, maxheight_g, maxwidth, bottom, max_fee_rate_graph, gridFont);
         //drawFeeRanges(bottom, gridFont);
         //drawFeeRects(bottom, maxwidth, display_up_to_range, ADD_TEXT, gridFont);
 
