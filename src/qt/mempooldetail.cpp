@@ -117,7 +117,8 @@ void MempoolDetail::drawFeeRects( qreal bottom, int maxwidth, int display_up_to_
 
             ClickableRectItem *fee_rect_detail = new ClickableRectItem();
             if (c_y < (bottom + GRAPH_PADDING_BOTTOM + 80))
-                fee_rect_detail->setRect(C_X, c_y-7, C_W+100, C_H);
+                //fee_rect_detail->setRect(C_X, c_y-7, C_W+100, C_H);
+                fee_rect_detail->setRect(C_X, c_y-7, maxwidth, C_H);
 
             if (MEMPOOL_GRAPH_LOGGING){
                 LogPrintf("\nfee_path_delta = %s\n", typeid(m_clientmodel->m_mempool_feehist[0].second).name());
@@ -129,11 +130,11 @@ void MempoolDetail::drawFeeRects( qreal bottom, int maxwidth, int display_up_to_
             //Stack of rects on left
             QColor brush_color = colors[(i < static_cast<int>(colors.size()) ? i : static_cast<int>(colors.size())-1)];
             //brush_color.setAlpha(100);
-            brush_color.setAlpha(255);
+            brush_color.setAlpha(0);
             if (m_selected_range >= 0 && m_selected_range != i) {
                 // if one item is selected, hide out the other ones
                 // fee range boxes
-                brush_color.setAlpha(200);//not pressed
+                brush_color.setAlpha(100);//not pressed
                 //
             }
 
@@ -273,6 +274,7 @@ void MempoolDetail::drawChart()
         // hide ranges we don't have txns
         for(size_t i = 0; i < fee_subtotal_txcount.size(); i++) {
             if (fee_subtotal_txcount[i] > 0) {
+                //useful
                 display_up_to_range = i;
             }
         }
