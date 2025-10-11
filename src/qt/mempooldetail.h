@@ -12,10 +12,16 @@
 #include <QGraphicsScene>
 #include <QGraphicsSimpleTextItem>
 #include <QGraphicsView>
+#include <QTableView> // Added for MempoolFeeTable
 
 #include <policy/fees.h>
 
 class ClientModel;
+class MempoolFeeTableModel; // Forward declaration
+
+namespace Ui {
+    class MempoolStats;
+}
 
 class ClickableTextItemDetail : public QObject, public QGraphicsSimpleTextItem
 {
@@ -48,6 +54,7 @@ public Q_SLOTS:
     void drawFeeRects();
     void drawFeeRanges(qreal bottom, QFont LABELFONT);
     void drawFeeRects(qreal bottom, int maxwidth, int display_up_to_range, int fee_subtotal_tx, bool ADD_TEXT, QFont LABELFONT);
+    void updateMempoolFeeTable(); // New slot to update the fee table
 
     void mousePressEvent(QMouseEvent        *event) override;
     void mouseReleaseEvent(QMouseEvent      *event) override;
@@ -76,6 +83,12 @@ private:
     virtual void hideEvent(QHideEvent        *event) override;
 
     int m_selected_range = -1;
+
+    Ui::MempoolStats *ui; // Added for UI access
+    MempoolFeeTableModel* m_mempool_fee_table_model; // Added for mempool fee table model
+    QTableView* m_mempool_fee_table; // Added for mempool fee table
+
+    ~MempoolDetail();
 };
 
 #endif // BITCOIN_QT_MEMPOOLDETAIL_H

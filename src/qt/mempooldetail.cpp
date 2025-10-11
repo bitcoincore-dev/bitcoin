@@ -1,18 +1,19 @@
-// Copyright (c) 2022 The Bitcoin Core developers
-// Distributed under the MIT software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
-
 #include <QtMath>
 #include <QMouseEvent>
+#include <QEnterEvent>
 #include <qt/guiutil.h>
 #include <qt/clientmodel.h>
 #include <qt/mempooldetail.h>
+#include <qt/mempoolfeetables.h> // Added for MempoolFeeTableModel
 #include <qt/clickableitems.h>
 #include <qt/mempoolconstants.h>
 #include <qt/forms/ui_mempooldetail.h>
 
-MempoolDetail::MempoolDetail(QWidget *parent) : QWidget(parent)
+MempoolDetail::MempoolDetail(QWidget *parent) : QWidget(parent), ui(new Ui::MempoolStats)
 {
+    ui->setupUi(this);
+    m_gfx_detail = ui->graphicsView;
+
     if (parent) {
         parent->installEventFilter(this);
         raise();
@@ -32,11 +33,17 @@ MempoolDetail::MempoolDetail(QWidget *parent) : QWidget(parent)
 
     }
 
-    m_gfx_detail = new QGraphicsView(this);
-    m_scene = new QGraphicsScene(m_gfx_detail);
-    m_gfx_detail->setScene(m_scene);
-    m_gfx_detail->setBackgroundBrush(QColor(16, 18, 31, 127));
-    m_gfx_detail->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
+    m_scene = new QGraphicsScene(ui->graphicsView);
+    ui->graphicsView->setScene(m_scene);
+    ui->graphicsView->setBackgroundBrush(QColor(16, 18, 31, 127));
+    ui->graphicsView->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
+
+    m_mempool_fee_table_model = new MempoolFeeTableModel(this);
+    ui->mempoolFeeTable->setModel(m_mempool_fee_table_model);
+    ui->mempoolFeeTable->horizontalHeader()->setStretchLastSection(true);
+    ui->mempoolFeeTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->mempoolFeeTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->mempoolFeeTable->setSelectionMode(QAbstractItemView::SingleSelection);
 
     if (m_clientmodel)
         drawFeeRects();
@@ -485,4 +492,15 @@ void MempoolDetail::hideFeeRects(QEvent *event){
     }
 
 };
+
+MempoolDetail::~MempoolDetail()
+{
+    delete ui;
+    delete m_scene;
+}
+
+void MempoolDetail::updateMempoolFeeTable()
+{
+    // TODO: Implement the logic to update the mempool fee table
+}
 
