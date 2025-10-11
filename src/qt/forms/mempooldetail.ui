@@ -49,16 +49,6 @@
      </property>
     </widget>
    </item>
-   <item>
-    <widget class="QTableView" name="mempoolFeeTable">
-     <property name="horizontalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
-     </property>
-     <property name="sortingEnabled">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
  <resources/>
