@@ -62,8 +62,8 @@ protected:
     QList<QGraphicsItem*> m_wallet_indicator_items;
 
 private:
-    QTableView *m_fee_table{nullptr};
-    MempoolFeeTableModel *m_fee_table_model{nullptr};
+    //QTableView *m_fee_table{nullptr};
+    //MempoolFeeTableModel *m_fee_table_model{nullptr};
 
 public Q_SLOTS:
     void onWalletTxChanged();
