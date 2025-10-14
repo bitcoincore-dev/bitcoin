@@ -63,6 +63,10 @@ public:
         tr("Total Weight (WU)")};
 
     static const std::vector<QString> FEE_RANGE_STRINGS;
+    static const std::vector<double> MEMPOOL_FEE_RANGES;
+    static const size_t MEMPOOL_FEE_RANGES_NUM;
+
+    QVector<QColor> colors;
 };
 
 #endif // BITCOIN_QT_MEMPOOLFEETABLES_H

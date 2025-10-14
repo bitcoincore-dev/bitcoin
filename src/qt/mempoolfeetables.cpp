@@ -11,9 +11,18 @@
 
 #include <QDebug>
 
+const std::vector<double> MempoolFeeTableModel::MEMPOOL_FEE_RANGES = {
+    100000.0, 50000.0, 20000.0, 10000.0, 5000.0, 2000.0, 1000.0, 500.0, 200.0, 100.0, 50.0, 20.0, 10.0, 5.0, 2.0, 1.0
+};
+const size_t MempoolFeeTableModel::MEMPOOL_FEE_RANGES_NUM = MempoolFeeTableModel::MEMPOOL_FEE_RANGES.size();
+
 MempoolFeeTableModel::MempoolFeeTableModel(QObject* parent)
     : QAbstractTableModel(parent)
 {
+    colors.resize(MEMPOOL_FEE_RANGES_NUM);
+    for (size_t i = 0; i < MEMPOOL_FEE_RANGES_NUM; ++i) {
+        colors[i] = QColor::fromHsvF(0.6 - (i / (double)MEMPOOL_FEE_RANGES_NUM) * 0.6, 1.0, 0.8);
+    }
 }
 
 MempoolFeeTableModel::~MempoolFeeTableModel() = default;

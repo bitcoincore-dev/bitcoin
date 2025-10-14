@@ -14,6 +14,8 @@
 #include <QTableView>
 #include <QSplitter>
 #include <QVBoxLayout>
+#include <QGraphicsTextItem>
+#include <QFont>
 
 #include <policy/fees.h>
 
@@ -56,6 +58,10 @@ private:
 
     QTableView *m_fee_table{nullptr};
     MempoolFeeTableModel *m_fee_table_model{nullptr};
+
+    QWidget* m_right_panel{nullptr};
+    QTableView* m_transaction_table{nullptr};
+    QStandardItemModel* m_transaction_model{nullptr};
 
     virtual void enterEvent(QEnterEvent      *event) override;
     virtual void leaveEvent(QEvent           *event) override;
