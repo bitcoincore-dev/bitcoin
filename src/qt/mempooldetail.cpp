@@ -346,26 +346,19 @@ void MempoolDetail::showFeeRanges(QEvent *event){
     updateFeeTable();
 };
 void MempoolDetail::hideFeeRanges(QEvent *event){
-    QEvent *this_event = event;
-    if (MEMPOOL_GRAPH_LOGGING){
-        LogPrintf("leaveEvent\n");
-        LogPrintf("this_event->type() %s\n",this_event->type());
-        LogPrintf("this_event->type() %s\n",this_event->type());
+    if (MEMPOOL_GRAPH_LOGGING) {
+        LogPrintf("hideFeeRanges\n");
+        LogPrintf("event->type() %s\n",event->type());
     }
     updateFeeTable();
-
 };
 
 void MempoolDetail::showFeeRects(QEvent *event){
-
-    QEvent *this_event = event;
-    if (MEMPOOL_GRAPH_LOGGING){
-        LogPrintf("leaveEvent\n");
-        LogPrintf("this_event->type() %s\n",this_event->type());
-        LogPrintf("this_event->type() %s\n",this_event->type());
+    if (MEMPOOL_GRAPH_LOGGING) {
+        LogPrintf("showFeeRects\n");
+        LogPrintf("event->type() %s\n",event->type());
     }
     updateFeeTable();
-
 };
 void MempoolDetail::hideFeeRects(QEvent *event){
     if (MEMPOOL_GRAPH_LOGGING) {
