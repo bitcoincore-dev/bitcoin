@@ -99,8 +99,6 @@ void MempoolDetail::setPlatformStyle(const PlatformStyle* platform_style)
     m_transaction_table->verticalHeader()->setVisible(true);
     right_layout->addWidget(m_transaction_table);
     m_right_panel->hide();
-    right_layout->addWidget(m_transaction_table);
-    m_right_panel->hide();
 
     QSplitter* splitter = new QSplitter(Qt::Horizontal, this);
     splitter->addWidget(m_fee_table);
@@ -121,7 +119,7 @@ void MempoolDetail::setPlatformStyle(const PlatformStyle* platform_style)
         }
         else {
             m_selected_range = m_fee_table_model->index(current.row(), 0).data(MempoolFeeTableModel::OriginalIndexRole).toInt();
-            updateTransactionTable();
+            // updateTransactionTable();
             m_right_panel->show();
         }
         if (m_clientmodel) {
@@ -165,81 +163,45 @@ void MempoolDetail::updateTransactionTable()
 }
 
 void MempoolDetail::setClientModel(ClientModel *model)
-
 {
-
     m_clientmodel = model;
-
     if (model) {
-
         connect(model, &ClientModel::mempoolFeeHistChanged, this, &MempoolDetail::updateFeeTable);
-
         connect(model, &ClientModel::mempoolRangeSelected, this, &MempoolDetail::onRangeSelected);
-
         MempoolDetail::updateFeeTable();
-
     }
-
 }
-
 
 
 void MempoolDetail::updateFeeTable()
-
 {
-
     if (m_clientmodel) {
-
         QMutexLocker locker(&m_clientmodel->m_mempool_locker);
-
         if (!m_clientmodel->m_mempool_feehist.empty()) {
-
             int selected_row = m_fee_table->selectionModel()->currentIndex().row();
-
             m_fee_table_model->updateModel(m_clientmodel->m_mempool_feehist[0].second);
-
             QSignalBlocker blocker(m_fee_table->selectionModel());
-
             if (selected_row >= 0 && selected_row < m_fee_table->model()->rowCount()) {
-
                 m_fee_table->selectRow(selected_row);
-
             }
-
         }
-
     }
-
 }
-
 
 
 void MempoolDetail::setFontSize(qreal newSize)
-
 {
-
     if (newSize < FONT_RANGE.width() || newSize > FONT_RANGE.height())
-
         return;
-
-
 
     m_font_size = newSize;
 
-
-
     QSettings settings;
-
     settings.setValue(mempoolDetailFontSizeKey, m_font_size);
 
-
-
     if (m_clientmodel) {
-
     }
-
 }
-
 
 
 void MempoolDetail::onRangeSelected(int range)
