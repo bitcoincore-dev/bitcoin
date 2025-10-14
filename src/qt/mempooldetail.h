@@ -63,6 +63,8 @@ private:
     QTableView* m_transaction_table{nullptr};
     QStandardItemModel* m_transaction_model{nullptr};
 
+    void updateTransactionTable();
+
     virtual void enterEvent(QEnterEvent      *event) override;
     virtual void leaveEvent(QEvent           *event) override;
     void changeEvent(QEvent* e) override;

@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <qt/mempooldetail.h>
+#include <qt/mempoolconstants.h>
 #include <QtMath>
 #include <QMouseEvent>
 #include <qt/guiutil.h>
@@ -128,36 +129,37 @@ void MempoolDetail::setPlatformStyle(const PlatformStyle* platform_style)
 }
 
 void MempoolDetail::updateTransactionTable()
+void MempoolDetail::updateTransactionTable()
 {
-    m_transaction_model->clear();
-    if (!m_clientmodel || m_selected_range < 0) {
-        return;
-    }
+    // m_transaction_model->clear();
+    // if (!m_clientmodel || m_selected_range < 0) {
+    //     return;
+    // }
 
-    if (size_t(m_selected_range) >= MEMPOOL_FEE_RANGES_NUM) {
-        return;
-    }
+    // if (size_t(m_selected_range) >= MempoolFeeTableModel::MEMPOOL_FEE_RANGES_NUM) {
+    //     return;
+    // }
 
-    // MEMPOOL_FEE_RANGES are descending fee rates.
-    // range 0: [MEMPOOL_FEE_RANGES[0], inf)
-    // range i: [MEMPOOL_FEE_RANGES[i], MEMPOOL_FEE_RANGES[i-1])
-    double min_fee_rate = MEMPOOL_FEE_RANGES[m_selected_range];
-    double max_fee_rate = (m_selected_range > 0) ? MEMPOOL_FEE_RANGES[m_selected_range - 1] : std::numeric_limits<double>::max();
+    // // MEMPOOL_FEE_RANGES are descending fee rates.
+    // // range 0: [MEMPOOL_FEE_RANGES[0], inf)
+    // // range i: [MEMPOOL_FEE_RANGES[i], MEMPOOL_FEE_RANGES[i-1])
+    // double min_fee_rate = MempoolFeeTableModel::MEMPOOL_FEE_RANGES[m_selected_range];
+    // double max_fee_rate = (m_selected_range > 0) ? MempoolFeeTableModel::MEMPOOL_FEE_RANGES[m_selected_range - 1] : std::numeric_limits<double>::max();
 
-    auto mempool_info = m_clientmodel->node().getMempoolInfo();
-    if (!mempool_info) return;
+    // auto mempool_info = m_clientmodel->node().getMempoolInfo();
+    // if (!mempool_info) return;
 
-    for (const auto& tx_info : mempool_info->m_txs) {
-        double fee_rate = (double)tx_info->fee.GetSatoshis() / tx_info->vsize;
-        if (fee_rate >= min_fee_rate && fee_rate < max_fee_rate) {
-            QList<QStandardItem *> rowItems;
-            rowItems << new QStandardItem(QString::fromStdString(tx_info->txid.ToString()));
-            rowItems << new QStandardItem(QString::number(tx_info->vsize));
-            rowItems << new QStandardItem(GUIUtil::formatAmount(tx_info->fee, false, GUIUtil::separatorAlways));
-            rowItems << new QStandardItem(QString::number(fee_rate, 'f', 2));
-            m_transaction_model->appendRow(rowItems);
-        }
-    }
+    // for (const auto& tx_info : mempool_info->m_txs) {
+    //     double fee_rate = (double)tx_info->fee.GetSatoshis() / tx_info->vsize;
+    //     if (fee_rate >= min_fee_rate && fee_rate < max_fee_rate) {
+    //         QList<QStandardItem *> rowItems;
+    //         rowItems << new QStandardItem(QString::fromStdString(tx_info->txid.ToString()));
+    //         rowItems << new QStandardItem(QString::number(tx_info->vsize));
+    //         rowItems << new QStandardItem(GUIUtil::formatAmount(tx_info->fee, false, GUIUtil::separatorAlways));
+    //         rowItems << new QStandardItem(QString::number(fee_rate, 'f', 2));
+    //         m_transaction_model->appendRow(rowItems);
+    //     }
+    // }
 }
 
 void MempoolDetail::setClientModel(ClientModel *model)
@@ -259,107 +261,40 @@ void MempoolDetail::onRangeSelected(int range)
 
 
 
-void MempoolDetail::mousePressEvent(QMouseEvent *event) { Q_EMIT objectClicked(this);
+void MempoolDetail::mousePressEvent(QMouseEvent *event) {
+    Q_EMIT objectClicked(this);
+    QWidget::mousePressEvent(event);
+}
 
-
-
-        }
-
-
-
-    
-
-
-
-        updateFeeTable();
-
-
-
-    
-
-
-
-    }
-
-void MempoolDetail::mouseReleaseEvent(QMouseEvent *event) { Q_EMIT objectClicked(this);
-
-
-
+void MempoolDetail::mouseReleaseEvent(QMouseEvent *event) {
+    Q_EMIT objectClicked(this);
     QWidget::mouseReleaseEvent(event);
-
-    if (MEMPOOL_GRAPH_LOGGING){
-
-        LogPrintf("mousePressEvent\n");
-
+    if (MEMPOOL_GRAPH_LOGGING) {
+        LogPrintf("mouseReleaseEvent\n");
         LogPrintf("event->pos().x() %s\n",event->pos().x());
-
         LogPrintf("event->pos().y() %s\n",event->pos().y());
-
         LogPrintf("event->type() %s\n",event->type());
-
-        LogPrintf("event->type() %s\n",event->type());
-
-}
-}
-
-void MempoolDetail::mouseDoubleClickEvent(QMouseEvent *event) { Q_EMIT objectClicked(this);
-
-
-
-        QWidget::mouseDoubleClickEvent(event);
-
-
-
-        if (MEMPOOL_GRAPH_LOGGING){
-
-
-
-            LogPrintf("mousePressEvent\n");
-
-
-
-            LogPrintf("event->pos().x() %s\n",event->pos().x());
-
-
-
-            LogPrintf("event->pos().y() %s\n",event->pos().y());
-
-
-
-        }
-
-
-
-    
-
-
-
-        updateFeeTable();
-
-
-
-    
-
-
-
     }
+}
 
-void MempoolDetail::mouseMoveEvent(QMouseEvent *event) { Q_EMIT objectClicked(this);
+void MempoolDetail::mouseDoubleClickEvent(QMouseEvent *event) {
+    Q_EMIT objectClicked(this);
+    QWidget::mouseDoubleClickEvent(event);
+    if (MEMPOOL_GRAPH_LOGGING) {
+        LogPrintf("mouseDoubleClickEvent\n");
+        LogPrintf("event->pos().x() %s\n",event->pos().x());
+        LogPrintf("event->pos().y() %s\n",event->pos().y());
+    }
+}
 
-
-
+void MempoolDetail::mouseMoveEvent(QMouseEvent *event) {
+    Q_EMIT objectClicked(this);
     QWidget::mouseMoveEvent(event);
-
-    if (MEMPOOL_GRAPH_LOGGING){
-
-        LogPrintf("mousePressEvent\n");
-
+    if (MEMPOOL_GRAPH_LOGGING) {
+        LogPrintf("mouseMoveEvent\n");
         LogPrintf("event->pos().x() %s\n",event->pos().x());
-
         LogPrintf("event->pos().y() %s\n",event->pos().y());
-
     }
-
 }
 
 
