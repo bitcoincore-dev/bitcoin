@@ -91,9 +91,13 @@ void MempoolDetail::setPlatformStyle(const PlatformStyle* platform_style)
     m_transaction_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_transaction_table->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_transaction_table->setSelectionMode(QAbstractItemView::SingleSelection);
-    m_transaction_table->setAlternatingRowColors(false);
+    m_transaction_table->setAlternatingRowColors(true);
+    //
     m_transaction_table->setStyleSheet("");
     m_transaction_table->setSortingEnabled(true);
+    //GEMINI - fix
+    //m_transaction_table->setBackgroundRole(QPalette::Window);
+    //m_transaction_table->setPalette(QApplication::palette());
     m_transaction_model->setHorizontalHeaderLabels({"TXID", "Size", "Fee (sats)", "Fee Rate (sats/vB)"});
     m_transaction_table->horizontalHeader()->setStretchLastSection(true);
     m_transaction_table->verticalHeader()->setVisible(true);
@@ -119,7 +123,7 @@ void MempoolDetail::setPlatformStyle(const PlatformStyle* platform_style)
         }
         else {
             m_selected_range = m_fee_table_model->index(current.row(), 0).data(MempoolFeeTableModel::OriginalIndexRole).toInt();
-            // updateTransactionTable();
+            updateTransactionTable();
             m_right_panel->show();
         }
         if (m_clientmodel) {
@@ -131,6 +135,7 @@ void MempoolDetail::setPlatformStyle(const PlatformStyle* platform_style)
 
 void MempoolDetail::updateTransactionTable()
 {
+    //GEMINI fix
     // m_transaction_model->clear();
     // if (!m_clientmodel || m_selected_range < 0) {
     //     return;
@@ -318,7 +323,7 @@ void MempoolDetail::showFeeRects(QEvent *event){
         LogPrintf("event->type() %s\n",event->type());
     }
     updateFeeTable();
-};
+}
 void MempoolDetail::hideFeeRects(QEvent *event){
 
     QEvent *this_event = event;
