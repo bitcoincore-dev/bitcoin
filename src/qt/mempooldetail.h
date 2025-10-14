@@ -10,6 +10,10 @@
 #include <QToolButton>
 #include <QHBoxLayout>
 #include <QTimer>
+#include <QStandardItemModel>
+#include <QTableView>
+#include <QSplitter>
+#include <QVBoxLayout>
 
 #include <policy/fees.h>
 
