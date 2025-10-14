@@ -129,7 +129,6 @@ void MempoolDetail::setPlatformStyle(const PlatformStyle* platform_style)
 }
 
 void MempoolDetail::updateTransactionTable()
-void MempoolDetail::updateTransactionTable()
 {
     // m_transaction_model->clear();
     // if (!m_clientmodel || m_selected_range < 0) {
@@ -361,8 +360,12 @@ void MempoolDetail::showFeeRects(QEvent *event){
     updateFeeTable();
 };
 void MempoolDetail::hideFeeRects(QEvent *event){
-    if (MEMPOOL_GRAPH_LOGGING) {
-        LogPrintf("hideFeeRects\n");
-        LogPrintf("event->type() %s\n",event->type());
+
+    QEvent *this_event = event;
+    if (MEMPOOL_GRAPH_LOGGING){
+        LogPrintf("leaveEvent\n");
+        LogPrintf("this_event->type() %s\n",this_event->type());
+        LogPrintf("this_event->type() %s\n",this_event->type());
     }
+
 };
