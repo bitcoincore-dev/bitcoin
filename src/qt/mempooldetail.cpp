@@ -91,9 +91,12 @@ void MempoolDetail::setPlatformStyle(const PlatformStyle* platform_style)
     m_transaction_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_transaction_table->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_transaction_table->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_transaction_table->setAlternatingRowColors(false);
+    m_transaction_table->setStyleSheet("");
     m_transaction_table->setSortingEnabled(true);
     m_transaction_model->setHorizontalHeaderLabels({"TXID", "Size", "Fee (sats)", "Fee Rate (sats/vB)"});
     m_transaction_table->horizontalHeader()->setStretchLastSection(true);
+    m_transaction_table->verticalHeader()->setVisible(true);
     right_layout->addWidget(m_transaction_table);
     m_right_panel->hide();
     right_layout->addWidget(m_transaction_table);
