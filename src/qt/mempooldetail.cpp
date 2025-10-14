@@ -299,60 +299,29 @@ void MempoolDetail::mouseMoveEvent(QMouseEvent *event) {
 
 
 
-void MempoolDetail::enterEvent(QEnterEvent *event) { Q_EMIT objectClicked(this);
-
-
-
-    QEvent *this_event = event;
-
-    if (MEMPOOL_GRAPH_LOGGING){
-
+void MempoolDetail::enterEvent(QEnterEvent *event) {
+    Q_EMIT objectClicked(this);
+    QWidget::enterEvent(event);
+    if (MEMPOOL_GRAPH_LOGGING) {
         LogPrintf("enterEvent\n");
-
-        LogPrintf("this_event->type() %s\n",this_event->type());
-
-        LogPrintf("this_event->type() %s\n",this_event->type());
-
-            }
-
-        
-
-            updateFeeTable();
-
-            showFeeRanges(this_event);
-
-            showFeeRects(this_event);
-
-        
-
-        }
-
-
-
-void MempoolDetail::leaveEvent(QEvent *event) { Q_EMIT objectClicked(this);
-
-
-
-    QEvent *this_event = event;
-
-    if (MEMPOOL_GRAPH_LOGGING){
-
-        LogPrintf("leaveEvent\n");
-
-        LogPrintf("this_event->type() %s\n",this_event->type());
-
-        LogPrintf("this_event->type() %s\n",this_event->type());
-
+        LogPrintf("event->type() %s\n",event->type());
     }
+    updateFeeTable();
+    showFeeRanges(event);
+    showFeeRects(event);
+}
 
 
 
-    hideFeeRanges(this_event);
-
-    hideFeeRects(this_event);
-
-
-
+void MempoolDetail::leaveEvent(QEvent *event) {
+    Q_EMIT objectClicked(this);
+    QWidget::leaveEvent(event);
+    if (MEMPOOL_GRAPH_LOGGING) {
+        LogPrintf("leaveEvent\n");
+        LogPrintf("event->type() %s\n",event->type());
+    }
+    hideFeeRanges(event);
+    hideFeeRects(event);
 }
 
 
@@ -370,65 +339,11 @@ void MempoolDetail::changeEvent(QEvent* e)
 
 
 void MempoolDetail::showFeeRanges(QEvent *event){
-
-
-
-
-
-
-
-    QEvent *this_event = event;
-
-
-
-
-
-
-
-    if (MEMPOOL_GRAPH_LOGGING){
-
-
-
-
-
-
-
-        LogPrintf("leaveEvent\n");
-
-
-
-
-
-
-
-        LogPrintf("this_event->type() %s\n",this_event->type());
-
-
-
-
-
-
-
-        LogPrintf("this_event->type() %s\n",this_event->type());
-
-
-
-
-
-
-
+    if (MEMPOOL_GRAPH_LOGGING) {
+        LogPrintf("showFeeRanges\n");
+        LogPrintf("event->type() %s\n",event->type());
     }
-
-
-
     updateFeeTable();
-
-
-
-
-
-
-
 };
 void MempoolDetail::hideFeeRanges(QEvent *event){
     QEvent *this_event = event;
