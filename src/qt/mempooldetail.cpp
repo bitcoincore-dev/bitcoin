@@ -291,15 +291,10 @@ void MempoolDetail::leaveEvent(QEvent *event) {
 
 
 void MempoolDetail::changeEvent(QEvent* e)
-
 {
-
     // No buttons to update on palette change anymore
-
     QWidget::changeEvent(e);
-
 }
-
 
 
 void MempoolDetail::showFeeRanges(QEvent *event){
