@@ -1,0 +1,119 @@
+
+
+
+
+
+2025-11-11T18:38:56Z Bitcoin Core version v30.99.0-db1c4089f012-dirty (release build)
+2025-11-11T18:38:56Z Using the 'arm_shani(1way;2way)' SHA256 implementation
+2025-11-11T18:38:56Z Default data directory /Users/git/Library/Application Support/Bitcoin
+2025-11-11T18:38:56Z Using data directory /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/regtest
+2025-11-11T18:38:56Z Config file: /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/bitcoin.conf (not found, skipping)
+2025-11-11T18:38:56Z Command-line arg: daemon=""
+2025-11-11T18:38:56Z Command-line arg: datadir="./signet_data"
+2025-11-11T18:38:56Z Command-line arg: regtest=""
+2025-11-11T18:38:56Z Using at most 125 automatic connections (1024 file descriptors available)
+2025-11-11T18:38:56Z Warning: relative datadir option './signet_data' specified, which will be interpreted relative to the current working directory '/Users/Shared/bitcoincore-dev/.github/bitcoin/pr896'. This is fragile, because if bitcoin is started in the future from a different location, it will be unable to locate the current data files. There could also be data loss if bitcoin is started while in a temporary directory.
+2025-11-11T18:38:56Z scheduler thread start
+2025-11-11T18:38:56Z Binding RPC on address ::1 port 18443
+2025-11-11T18:38:56Z Binding RPC on address 127.0.0.1 port 18443
+2025-11-11T18:38:56Z Generated RPC authentication cookie /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/regtest/.cookie
+2025-11-11T18:38:56Z Permissions used for cookie: rw-------
+2025-11-11T18:38:56Z Using random cookie authentication.
+2025-11-11T18:38:56Z Starting HTTP server with 16 worker threads
+2025-11-11T18:38:56Z Using wallet directory /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/regtest/wallets
+2025-11-11T18:38:56Z init message: Verifying wallet(s)…
+2025-11-11T18:38:56Z Using /16 prefix for IP bucketing
+2025-11-11T18:38:56Z init message: Loading P2P addresses…
+2025-11-11T18:38:56Z Creating peers.dat because the file was not found ("/Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/regtest/peers.dat")
+2025-11-11T18:38:56Z init message: Loading banlist…
+2025-11-11T18:38:56Z Recreating the banlist database
+2025-11-11T18:38:56Z SetNetworkActive: true
+2025-11-11T18:38:56Z /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/regtest/fee_estimates.dat is not found. Continue anyway.
+2025-11-11T18:38:56Z Cache configuration:
+2025-11-11T18:38:56Z * Using 2.0 MiB for block index database
+2025-11-11T18:38:56Z * Using 8.0 MiB for chain state database
+2025-11-11T18:38:56Z * Using 440.0 MiB for in-memory UTXO set (plus up to 286.1 MiB of unused mempool space)
+2025-11-11T18:38:56Z Script verification uses 7 additional threads
+2025-11-11T18:38:56Z Using obfuscation key for blocksdir *.dat files (/Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/regtest/blocks): 'b01fa02e22631fba'
+2025-11-11T18:38:56Z Opening LevelDB in /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/regtest/blocks/index
+2025-11-11T18:38:56Z Opened LevelDB successfully
+2025-11-11T18:38:56Z Using obfuscation key for /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/regtest/blocks/index: 0000000000000000
+2025-11-11T18:38:56Z Using 16 MiB out of 16 MiB requested for signature cache, able to store 524288 elements
+2025-11-11T18:38:56Z Using 16 MiB out of 16 MiB requested for script execution cache, able to store 524288 elements
+2025-11-11T18:38:56Z init message: Loading block index…
+2025-11-11T18:38:56Z Validating signatures for all blocks.
+2025-11-11T18:38:56Z Setting nMinimumChainWork=0000000000000000000000000000000000000000000000000000000000000000
+2025-11-11T18:38:56Z Loading block index db: last block file = 0
+2025-11-11T18:38:56Z Loading block index db: last block file info: CBlockFileInfo(blocks=0, size=0, heights=0...0, time=1970-01-01...1970-01-01)
+2025-11-11T18:38:56Z Checking all blk files are present...
+2025-11-11T18:38:56Z Initializing chainstate Chainstate [ibd] @ height -1 (null)
+2025-11-11T18:38:56Z Opening LevelDB in /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/regtest/chainstate
+2025-11-11T18:38:56Z Opened LevelDB successfully
+2025-11-11T18:38:56Z Wrote new obfuscation key for /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/regtest/chainstate: 7df7b83ccf8d0663
+2025-11-11T18:38:56Z Using obfuscation key for /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/regtest/chainstate: 7df7b83ccf8d0663
+2025-11-11T18:38:56Z init message: Verifying blocks…
+2025-11-11T18:38:56Z Block index and chainstate loaded
+2025-11-11T18:38:56Z Setting NODE_NETWORK on non-prune mode
+2025-11-11T18:38:56Z initload thread start
+2025-11-11T18:38:56Z UpdateTip: new best=0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206 height=0 version=0x00000001 log2_work=1.000000 tx=1 date='2011-02-02T23:16:42Z' progress=0.000002 cache=0.3MiB(0txo)
+2025-11-11T18:38:56Z block tree size = 1
+2025-11-11T18:38:56Z nBestHeight = 0
+2025-11-11T18:38:56Z Failed to open mempool file. Continuing anyway.
+2025-11-11T18:38:56Z initload thread exit
+2025-11-11T18:38:56Z mapport thread start
+2025-11-11T18:38:56Z torcontrol thread start
+2025-11-11T18:38:56Z AddLocal([2607:fb92:1c06:657a:cf1:b9b:906:47]:18444,1)
+2025-11-11T18:38:56Z Discover: 2607:fb92:1c06:657a:cf1:b9b:906:47
+2025-11-11T18:38:56Z AddLocal([2607:fb92:1c06:657a:68e8:a648:520c:795a]:18444,1)
+2025-11-11T18:38:56Z Discover: 2607:fb92:1c06:657a:68e8:a648:520c:795a
+2025-11-11T18:38:56Z AddLocal([2607:fb92:1c06:657a:e103:ce58:c19c:aeaa]:18444,1)
+2025-11-11T18:38:56Z Discover: 2607:fb92:1c06:657a:e103:ce58:c19c:aeaa
+2025-11-11T18:38:56Z Bound to 127.0.0.1:18445
+2025-11-11T18:38:56Z Bound to [::]:18444
+2025-11-11T18:38:56Z Bound to 0.0.0.0:18444
+2025-11-11T18:38:56Z 0 block-relay-only anchors will be tried for connections.
+2025-11-11T18:38:56Z init message: Starting network threads…
+2025-11-11T18:38:56Z net thread start
+2025-11-11T18:38:56Z dnsseed thread start
+2025-11-11T18:38:56Z opencon thread start
+2025-11-11T18:38:56Z init message: Done loading
+2025-11-11T18:38:56Z msghand thread start
+2025-11-11T18:38:56Z addcon thread start
+2025-11-11T18:38:56Z Loading addresses from DNS seed dummySeed.invalid.
+2025-11-11T18:38:56Z [net:info] portmap: Added mapping pcp:192.168.12.214:18444 -> 192.168.2.2:18444 (for 2400s)
+2025-11-11T18:38:56Z 0 addresses found from DNS seeds
+2025-11-11T18:38:56Z dnsseed thread exit
+2025-11-11T18:39:01Z Using SQLite Version 3.43.2
+2025-11-11T18:39:01Z Using wallet /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/regtest/wallets/signer
+2025-11-11T18:39:01Z init message: Loading wallet…
+2025-11-11T18:39:01Z [signer] Legacy Wallet Keys: 0 plaintext, 0 encrypted, 0 w/ metadata, 0 total.
+2025-11-11T18:39:01Z [signer] Descriptors: 0, Descriptor Keys: 0 plaintext, 0 encrypted, 0 total.
+2025-11-11T18:39:01Z [signer] Setting spkMan to active: id = f18662da037f2ed79b875195afa087b7baf271df130333d7c673a901d4aeb9ab, type = legacy, internal = false
+2025-11-11T18:39:01Z [signer] Setting spkMan to active: id = d1f498d8141e188b9cff2ca6b609afb74cf35d8d043b9c1adb5b6c8b77051eeb, type = p2sh-segwit, internal = false
+2025-11-11T18:39:01Z [signer] Setting spkMan to active: id = 9d854c74f5c0761b7a460ef7251a0069b56d35d392d46e9a72b261768c6a210b, type = bech32, internal = false
+2025-11-11T18:39:01Z [signer] Setting spkMan to active: id = fe6401e0b9e5ed8dcffc68b55548fffe8b1824dc4eae99a14ca8227a1c90cb89, type = bech32m, internal = false
+2025-11-11T18:39:01Z [signer] Setting spkMan to active: id = f4f916f322b894ada69560d10348d6239e83d22b972faeadcdba52d90795d1a7, type = legacy, internal = true
+2025-11-11T18:39:01Z [signer] Setting spkMan to active: id = ba4576f956bb2ed7b38ecc3e06e8c2754923d4a6c7381748916185a31b84340d, type = p2sh-segwit, internal = true
+2025-11-11T18:39:01Z [signer] Setting spkMan to active: id = fa1d5707d48041c58131987006453f4b316a03c769023bcdbee7a0e6662aff12, type = bech32, internal = true
+2025-11-11T18:39:01Z [signer] Setting spkMan to active: id = 091839fe66d7f00991e28ac14db3568fd748bce38b5a23ebf217c91806954994, type = bech32m, internal = true
+2025-11-11T18:39:01Z [signer] Wallet completed loading in             304ms
+2025-11-11T18:39:01Z [signer] setKeyPool.size() = 8000
+2025-11-11T18:39:01Z [signer] mapWallet.size() = 0
+2025-11-11T18:39:01Z [signer] m_address_book.size() = 0
+2025-11-11T18:39:01Z tor: Thread interrupt
+2025-11-11T18:39:01Z Shutdown in progress...
+2025-11-11T18:39:01Z torcontrol thread exit
+2025-11-11T18:39:01Z mapport thread exit
+2025-11-11T18:39:01Z opencon thread exit
+2025-11-11T18:39:01Z addcon thread exit
+2025-11-11T18:39:01Z [signer] Releasing wallet signer..
+2025-11-11T18:39:01Z net thread exit
+2025-11-11T18:39:01Z msghand thread exit
+2025-11-11T18:39:01Z DumpAnchors: Flush 0 outbound block-relay-only peer addresses to anchors.dat started
+2025-11-11T18:39:02Z DumpAnchors: Flush 0 outbound block-relay-only peer addresses to anchors.dat completed (0.00s)
+2025-11-11T18:39:02Z scheduler thread exit
+2025-11-11T18:39:02Z Writing 0 mempool transactions to file...
+2025-11-11T18:39:02Z Writing 0 unbroadcast transactions to file.
+2025-11-11T18:39:02Z Dumped mempool: 0.000s to copy, 0.003s to dump, 27 bytes dumped to file
+2025-11-11T18:39:02Z Flushed fee estimates to fee_estimates.dat.
+2025-11-11T18:39:02Z Shutdown done

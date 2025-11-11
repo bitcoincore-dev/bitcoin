@@ -1,0 +1,21 @@
+[package]
+name = "bitcoin_signet_setup"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bitcoincore-rpc = "0.18.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1", features = ["full"] }
+anyhow = "1.0"
+regex = "1"
+chrono = "0.4"
+
+[profile.dev]
+# Enable optimizations for faster builds during development
+opt-level = 1
+
+[profile.release]
+# Enable full optimizations for release builds
+opt-level = 3
