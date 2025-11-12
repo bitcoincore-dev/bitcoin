@@ -36,5 +36,5 @@ echo "--- Phase 2: Starting Custom Signet and Miner Setup ---"
 
 # Start bitcoind in Signet mode as a daemon
 echo "Starting bitcoind in Signet mode as a daemon..."
-./bin/bitcoin-qt -listen=1 -port=$(gnostr-weeble) -signet -daemon -datadir=$SIGNET_DATADIR-$TIMESTAMP || { echo "Error: Failed to start bitcoind in Signet mode."; exit 1; }
+./bin/bitcoin-qt -addnode=127.0.0.1:38333 -addnode=127.0.0.1:38332  -addnode=127.0.0.1:38334 -listen=1 -port=$(gnostr-weeble) -signet -daemon -datadir=$SIGNET_DATADIR-$TIMESTAMP || { echo "Error: Failed to start bitcoind in Signet mode."; exit 1; }
 sleep 5
