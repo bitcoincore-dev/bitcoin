@@ -20,6 +20,14 @@ bcli="./bin/bitcoin-cli -datadir=$SIGNET_DATADIR"
 miner="../contrib/signet/miner"
 grinder="./bin/bitcoin-util grind"
 
+TIMESTAMP=0
+# Note: Renaming files ensures you don't lose previous configurations.
+mkdir -p "$SIGNET_DATADIR-$TIMESTAMP"
+rsync -r "$SIGNET_DATADIR/bitcoin.conf" "$SIGNET_DATADIR-$TIMESTAMP/" 2>/dev/null
+rsync -r "$SIGNET_DATADIR/*" "$SIGNET_DATADIR-$TIMESTAMP/" 2>/dev/null
+rsync -r "$SIGNET_DATADIR/signet" "$SIGNET_DATADIR-$TIMESTAMP/signet" 2>/dev/null
+cat "$SIGNET_DATADIR-$TIMESTAMP/bitcoin.conf"
+
 # Cleanup old configuration/data files for a fresh start (Crucial for debugging)
 echo "Archiving old configuration and data files..."
 TIMESTAMP=$(date +%s)
