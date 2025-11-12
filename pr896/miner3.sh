@@ -40,9 +40,35 @@ cat "$SIGNET_DATADIR-$TIMESTAMP/bitcoin.conf"
 
 # --- 4. Phase 2: Signet Execution and Mining Setup ---
 
+
+# 1. Execute the external tool and capture its output
+weeble_raw=$(gnostr-weeble)
+
+# 2. Declare 'weeble' as an integer variable.
+# This forces the value to be treated as an integer for math operations.
+# It's safer than using 'eval'.
+declare -i weeble
+
+# 3. Assign the raw output to the integer variable.
+# Bash will attempt to convert the string to an integer during this assignment.
+weeble=$weeble_raw
+
+# Optional: Export the variable if needed by subprocesses
+export weeble
+
+
+
 echo "--- Phase 2: Starting Custom Signet and Miner Setup ---"
 
-# Start bitcoind in Signet mode as a daemon
-echo "Starting bitcoind in Signet mode as a daemon..."
-./bin/bitcoin-qt -addnode=127.0.0.1:38333 -addnode=127.0.0.1:38332  -addnode=127.0.0.1:38334 -listen=1 -port=$(gnostr-weeble) -signet -daemon -datadir=$SIGNET_DATADIR-$TIMESTAMP || { echo "Error: Failed to start bitcoind in Signet mode."; exit 1; }
-sleep 5
+
+for datadir in $(ls -d signet_data-*);do
+pids=$(lsof -t -i :$((weeble+10))  )
+if [ -n "$pids" ]; then
+    echo "Found processes on port $((weeble+10)). Killing them now: $pids"
+   #kill -9 $pids
+fi
+./bin/bitcoin-qt -addnode=127.0.0.1:$weeble -addnode=127.0.0.1:$((weeble + 1)) -addnode=127.0.0.1:38333 -addnode=127.0.0.1:38332  -addnode=127.0.0.1:38334 -port=$((weeble +1 )) -signet -daemon -datadir=$datadir || { echo "Error: Failed to start bitcoind in Signet mode."; exit 1; } & sleep 5
+
+weeble=$(( weeble + 1 ))
+
+done
