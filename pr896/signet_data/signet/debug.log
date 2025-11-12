@@ -417,3 +417,57 @@
 2025-11-11T22:19:40Z UpdateTip: new best=000002b57e5a88bf318b4a9abe71dfc5cf2f70cab599da2d1cb177ecbe25303d height=18 version=0x20000000 log2_work=26.454032 tx=19 date='2025-11-11T22:28:37Z' progress=1.000000 cache=0.3MiB(18txo)
 2025-11-11T22:19:40Z [miner] AddToWallet e8b54a2b6a585e1152df42289586aa4f91747845dfe9a1115655415d6d284daf  new Confirmed (block=000002b57e5a88bf318b4a9abe71dfc5cf2f70cab599da2d1cb177ecbe25303d, height=18, index=0)
 2025-11-11T22:30:52Z [net:info] portmap: Added mapping pcp:192.168.12.214:38333 -> 192.168.2.2:38333 (for 2400s)
+2025-11-11T22:38:31Z Flushed fee estimates to fee_estimates.dat.
+2025-11-11T22:38:37Z CreateNewBlock(): block weight: 804 txs: 0 fees: 0 sigops 400
+2025-11-11T22:38:37Z UpdateTip: new best=000002113bec5521bd8e2ddafeb6819a17cf7e7f4a7cb4dfea6ad21d4118502d height=19 version=0x20000000 log2_work=26.528033 tx=20 date='2025-11-11T22:38:37Z' progress=1.000000 cache=0.3MiB(19txo)
+2025-11-11T22:38:37Z [miner] AddToWallet 662024e19f499ec86ede56714584e5704969346b6f4b9b7deb4d4c7aad33c1e8  new Confirmed (block=000002113bec5521bd8e2ddafeb6819a17cf7e7f4a7cb4dfea6ad21d4118502d, height=19, index=0)
+2025-11-11T22:48:37Z CreateNewBlock(): block weight: 804 txs: 0 fees: 0 sigops 400
+2025-11-11T22:48:37Z UpdateTip: new best=0000028f59797646e19f0f8ee4a203ba5c7f006930c79ac3ded0c5153d876c39 height=20 version=0x20000000 log2_work=26.598422 tx=21 date='2025-11-11T22:48:37Z' progress=1.000000 cache=0.3MiB(20txo)
+2025-11-11T22:48:37Z [miner] AddToWallet 3bbe71a6b394ae2e2190490b510492f8f5b5c6ed365b080852bf385e2f64bc94  new Confirmed (block=0000028f59797646e19f0f8ee4a203ba5c7f006930c79ac3ded0c5153d876c39, height=20, index=0)
+2025-11-11T22:55:01Z [net:info] portmap: Added mapping pcp:192.168.12.214:38333 -> 192.168.2.2:38333 (for 2400s)
+2025-11-11T22:58:37Z CreateNewBlock(): block weight: 804 txs: 0 fees: 0 sigops 400
+2025-11-11T22:58:37Z UpdateTip: new best=0000028bcfe8122af799c971aa4c413fb48d9e73b004a20ad9142920af99c8fc height=21 version=0x20000000 log2_work=26.665536 tx=22 date='2025-11-11T22:58:37Z' progress=1.000000 cache=0.3MiB(21txo)
+2025-11-11T22:58:37Z [miner] AddToWallet 2b038b21824a46f5dec1b1cc9cfe3a442038f7b10dcbd765b169140117510aad  new Confirmed (block=0000028bcfe8122af799c971aa4c413fb48d9e73b004a20ad9142920af99c8fc, height=21, index=0)
+2025-11-11T23:08:37Z CreateNewBlock(): block weight: 804 txs: 0 fees: 0 sigops 400
+2025-11-11T23:08:37Z UpdateTip: new best=000001a0f57cd99601bbf54852e058a47752c1698f9e6c38ede17b6717b61afe height=22 version=0x20000000 log2_work=26.729667 tx=23 date='2025-11-11T23:08:37Z' progress=1.000000 cache=0.3MiB(22txo)
+2025-11-11T23:08:37Z [miner] AddToWallet af8ae8dea447928941cfaa39fb9bb6d29eda60553c171fdc232e229f11eea6da  new Confirmed (block=000001a0f57cd99601bbf54852e058a47752c1698f9e6c38ede17b6717b61afe, height=22, index=0)
+2025-11-11T23:18:37Z CreateNewBlock(): block weight: 804 txs: 0 fees: 0 sigops 400
+2025-11-11T23:18:40Z UpdateTip: new best=000001e9002ed591f7029317f34fd9b1436407c375d26215b83cf395397752a4 height=23 version=0x20000000 log2_work=26.791067 tx=24 date='2025-11-11T23:18:37Z' progress=1.000000 cache=0.3MiB(23txo)
+2025-11-11T23:18:40Z [miner] AddToWallet a1f35c626e729f31aaa2a883ba751b227628e41e999db9f3f8b9d49b5f921db1  new Confirmed (block=000001e9002ed591f7029317f34fd9b1436407c375d26215b83cf395397752a4, height=23, index=0)
+2025-11-11T23:19:27Z [net:info] portmap: Added mapping pcp:192.168.12.214:38333 -> 192.168.2.2:38333 (for 2400s)
+2025-11-11T23:28:37Z CreateNewBlock(): block weight: 804 txs: 0 fees: 0 sigops 400
+2025-11-11T23:28:37Z UpdateTip: new best=0000007d139e2bce00a1630e5b436d6e676c9eb4f932921a212435bebb3b7c72 height=24 version=0x20000000 log2_work=26.849961 tx=25 date='2025-11-11T23:28:37Z' progress=1.000000 cache=0.3MiB(24txo)
+2025-11-11T23:28:37Z [miner] AddToWallet 10f81192f3b50e33d3d420d43b832703d0ef79b31054f512a1367d9c74c496ef  new Confirmed (block=0000007d139e2bce00a1630e5b436d6e676c9eb4f932921a212435bebb3b7c72, height=24, index=0)
+2025-11-11T23:38:31Z Flushed fee estimates to fee_estimates.dat.
+2025-11-11T23:38:37Z CreateNewBlock(): block weight: 804 txs: 0 fees: 0 sigops 400
+2025-11-11T23:38:37Z UpdateTip: new best=0000003091dbe8e5c84de1c533b7876696f7534ea9bbf40e15746423bbee6150 height=25 version=0x20000000 log2_work=26.906544 tx=26 date='2025-11-11T23:38:37Z' progress=1.000000 cache=0.3MiB(25txo)
+2025-11-11T23:38:37Z [miner] AddToWallet e9172219909a0bd150893daf8eb8ad25920a8de83cb9ce8e48a054294680eacc  new Confirmed (block=0000003091dbe8e5c84de1c533b7876696f7534ea9bbf40e15746423bbee6150, height=25, index=0)
+2025-11-11T23:43:02Z [net:info] portmap: Added mapping pcp:192.168.12.214:38333 -> 192.168.2.2:38333 (for 2400s)
+2025-11-11T23:48:37Z CreateNewBlock(): block weight: 804 txs: 0 fees: 0 sigops 400
+2025-11-11T23:48:37Z UpdateTip: new best=000000183701efd9bffbe58b2b3e10a636ee740270fb2af6472f46fe2ee5ddbd height=26 version=0x20000000 log2_work=26.960992 tx=27 date='2025-11-11T23:48:37Z' progress=1.000000 cache=0.3MiB(26txo)
+2025-11-11T23:48:37Z [miner] AddToWallet d2dc8cd1d4c43e4577281bf3d0774dbdd48133534220f919ecb32a28f3e423c2  new Confirmed (block=000000183701efd9bffbe58b2b3e10a636ee740270fb2af6472f46fe2ee5ddbd, height=26, index=0)
+2025-11-11T23:58:37Z CreateNewBlock(): block weight: 804 txs: 0 fees: 0 sigops 400
+2025-11-11T23:58:37Z UpdateTip: new best=000000552257e7f12c136abfc0b9830d35dab1c2ea0ea70af89c28757458f494 height=27 version=0x20000000 log2_work=27.013459 tx=28 date='2025-11-11T23:58:37Z' progress=1.000000 cache=0.3MiB(27txo)
+2025-11-11T23:58:37Z [miner] AddToWallet 457dd2ba10165d3e255a27835535d264838eca3b79ea0f1df8bffe1fbd71d3ad  new Confirmed (block=000000552257e7f12c136abfc0b9830d35dab1c2ea0ea70af89c28757458f494, height=27, index=0)
+2025-11-12T00:07:48Z [net:info] portmap: Added mapping pcp:192.168.12.214:38333 -> 192.168.2.2:38333 (for 2400s)
+2025-11-12T00:08:37Z CreateNewBlock(): block weight: 804 txs: 0 fees: 0 sigops 400
+2025-11-12T00:08:37Z UpdateTip: new best=000003067c1ffe0103aa98ce47844b0462e3da7709bbfde90eea0516df25ae35 height=28 version=0x20000000 log2_work=27.064086 tx=29 date='2025-11-12T00:08:37Z' progress=1.000000 cache=0.3MiB(28txo)
+2025-11-12T00:08:37Z [miner] AddToWallet 6282985574e6218e1dfb430be14c96cc053d076582a9c3105f8df40e0818fd78  new Confirmed (block=000003067c1ffe0103aa98ce47844b0462e3da7709bbfde90eea0516df25ae35, height=28, index=0)
+2025-11-12T00:18:37Z CreateNewBlock(): block weight: 804 txs: 0 fees: 0 sigops 400
+2025-11-12T00:18:37Z UpdateTip: new best=00000083cd4ae2d6ec0b6a8c07be89330280ce0354b8e69f8059e0435e47d144 height=29 version=0x20000000 log2_work=27.112995 tx=30 date='2025-11-12T00:18:37Z' progress=1.000000 cache=0.3MiB(29txo)
+2025-11-12T00:18:37Z [miner] AddToWallet ac3bf97f40664d13e0b0e1c8d62496d5e20cfb52217ea38d55e2424ef01e1572  new Confirmed (block=00000083cd4ae2d6ec0b6a8c07be89330280ce0354b8e69f8059e0435e47d144, height=29, index=0)
+2025-11-12T00:28:37Z CreateNewBlock(): block weight: 804 txs: 0 fees: 0 sigops 400
+2025-11-12T00:28:37Z UpdateTip: new best=000002837f9a1cb6419baa56a85d926d9748a9800a4863a77f16f66d5fc76a67 height=30 version=0x20000000 log2_work=27.160301 tx=31 date='2025-11-12T00:28:37Z' progress=1.000000 cache=0.3MiB(30txo)
+2025-11-12T00:28:37Z [miner] AddToWallet 947c371110ab4efc9f35dfb6fdf21fd5870f35aee3c3043974fb1ea5dad67fd6  new Confirmed (block=000002837f9a1cb6419baa56a85d926d9748a9800a4863a77f16f66d5fc76a67, height=30, index=0)
+2025-11-12T00:29:07Z [net:info] portmap: Added mapping pcp:192.168.12.214:38333 -> 192.168.2.2:38333 (for 2400s)
+2025-11-12T00:38:31Z Flushed fee estimates to fee_estimates.dat.
+2025-11-12T00:38:37Z CreateNewBlock(): block weight: 804 txs: 0 fees: 0 sigops 400
+2025-11-12T00:38:37Z UpdateTip: new best=000002dd70b424bfc4ac7149f90d11e30902dd6f35f72700d8a157fb36fcef96 height=31 version=0x20000000 log2_work=27.206105 tx=32 date='2025-11-12T00:38:37Z' progress=1.000000 cache=0.3MiB(31txo)
+2025-11-12T00:38:37Z [miner] AddToWallet 8a9469ecd2037c400980bed9a73a31192de1b22cba021ca67ce6aaf5cac40d9f  new Confirmed (block=000002dd70b424bfc4ac7149f90d11e30902dd6f35f72700d8a157fb36fcef96, height=31, index=0)
+2025-11-12T00:48:37Z CreateNewBlock(): block weight: 804 txs: 0 fees: 0 sigops 400
+2025-11-12T00:48:37Z UpdateTip: new best=000002fc616be22269bb04be34aa8514083489b93f88f741574ecc90d9d08938 height=32 version=0x20000000 log2_work=27.250499 tx=33 date='2025-11-12T00:48:37Z' progress=1.000000 cache=0.3MiB(32txo)
+2025-11-12T00:48:37Z [miner] AddToWallet 380a245a9e23e6830f85c414285691ced59c55e1fc2de51925cf3478d3bbcac3  new Confirmed (block=000002fc616be22269bb04be34aa8514083489b93f88f741574ecc90d9d08938, height=32, index=0)
+2025-11-12T00:49:35Z [net:info] portmap: Added mapping pcp:192.168.12.214:38333 -> 192.168.2.2:38333 (for 2400s)
+2025-11-12T00:58:37Z CreateNewBlock(): block weight: 804 txs: 0 fees: 0 sigops 400
+2025-11-12T00:58:37Z UpdateTip: new best=00000194ce55b34ba26e1cd98867071c9d66ef45198658fb7159dba21d88e5a8 height=33 version=0x20000000 log2_work=27.293567 tx=34 date='2025-11-12T00:58:37Z' progress=1.000000 cache=0.3MiB(33txo)
+2025-11-12T00:58:37Z [miner] AddToWallet a141e266c6fe462e77b7b4ef1fe717dba5add2da5b358a495e241d0a2f900f3d  new Confirmed (block=00000194ce55b34ba26e1cd98867071c9d66ef45198658fb7159dba21d88e5a8, height=33, index=0)
