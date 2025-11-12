@@ -67,7 +67,7 @@ if [ -n "$pids" ]; then
     echo "Found processes on port $((weeble+10)). Killing them now: $pids"
    #kill -9 $pids
 fi
-./bin/bitcoin-qt -addnode=127.0.0.1:$weeble -addnode=127.0.0.1:$((weeble + 1)) -addnode=127.0.0.1:38333 -addnode=127.0.0.1:38332  -addnode=127.0.0.1:38334 -port=$((weeble +1 )) -signet -daemon -datadir=$datadir || { echo "Error: Failed to start bitcoind in Signet mode."; exit 1; } & sleep 5
+./bin/bitcoin-qt -listen=$((weeble -1)) -addnode=127.0.0.1:$weeble -addnode=127.0.0.1:$((weeble + 1)) -addnode=127.0.0.1:38333 -addnode=127.0.0.1:38332  -addnode=127.0.0.1:38334 -port=$((weeble +1 )) -signet -daemon -datadir=$datadir || { echo "Error: Failed to start bitcoind in Signet mode."; exit 1; } & sleep 5
 
 weeble=$(( weeble + 1 ))
 
