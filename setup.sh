@@ -122,6 +122,7 @@ cat <<EOF > "$SIGNET_DATADIR/bitcoin.conf"
 rpcuser=signetuser
 rpcpassword=signetpassword
 signet=1
+server=1
 [signet]
 rpcport=38332
 add-node=8080

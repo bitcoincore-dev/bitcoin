@@ -157,3 +157,6 @@
 2025-11-13T15:50:31Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
 2025-11-13T15:50:31Z UpdateTip: new best=000001d5b1c4d3bda44d75d16ef10de18291927633cae72b1b808fe65493401a height=14 version=0x20000000 log2_work=26.112995 tx=15 date='2025-11-13T17:45:31Z' progress=1.000000 cache=0.3MiB(14txo)
 2025-11-13T15:50:36Z ThreadRPCServer incorrect password attempt from 127.0.0.1:65358
+2025-11-13T15:59:49Z [net:info] portmap: Added mapping pcp:192.168.12.214:38333 -> 192.168.2.2:38333 (for 2400s)
+2025-11-13T16:00:31Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
+2025-11-13T16:00:31Z UpdateTip: new best=000003229cf07c04ca66660cb139c32c126bda2c43f41e1073d3ba7fdf5854e4 height=15 version=0x20000000 log2_work=26.206105 tx=16 date='2025-11-13T17:55:31Z' progress=1.000000 cache=0.3MiB(15txo)

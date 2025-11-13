@@ -23,9 +23,9 @@ grinder="./bin/bitcoin-util grind"
 TIMESTAMP=0
 # Note: Renaming files ensures you don't lose previous configurations.
 mkdir -p "$SIGNET_DATADIR-$TIMESTAMP"
-rsync -r "$SIGNET_DATADIR/bitcoin.conf" "$SIGNET_DATADIR-$TIMESTAMP/" 2>/dev/null
-rsync -r "$SIGNET_DATADIR/*" "$SIGNET_DATADIR-$TIMESTAMP/" 2>/dev/null
-rsync -r "$SIGNET_DATADIR/signet" "$SIGNET_DATADIR-$TIMESTAMP/signet" 2>/dev/null
+rsync -r "$SIGNET_DATADIR-0/bitcoin.conf" "$SIGNET_DATADIR-$TIMESTAMP/" 2>/dev/null
+rsync -r "$SIGNET_DATADIR-0/*" "$SIGNET_DATADIR-$TIMESTAMP/" 2>/dev/null
+rsync -r "$SIGNET_DATADIR-0/signet" "$SIGNET_DATADIR-$TIMESTAMP/signet" 2>/dev/null
 cat "$SIGNET_DATADIR-$TIMESTAMP/bitcoin.conf"
 
 # Cleanup old configuration/data files for a fresh start (Crucial for debugging)
@@ -60,14 +60,30 @@ export weeble
 
 echo "--- Phase 2: Starting Custom Signet and Miner Setup ---"
 
-
-for datadir in $(ls -d signet_data-*);do
-pids=$(lsof -t -i :$((weeble+10))  )
+pids=$(lsof -t -i :$((weeble+1))  )
 if [ -n "$pids" ]; then
     echo "Found processes on port $((weeble+10)). Killing them now: $pids"
-   #kill -9 $pids
+   kill -9 $pids
 fi
-./bin/bitcoin-qt -listen=$((weeble -1)) -addnode=127.0.0.1:$weeble -addnode=127.0.0.1:$((weeble + 1)) -addnode=127.0.0.1:38333 -addnode=127.0.0.1:38332  -addnode=127.0.0.1:38334 -port=$((weeble +1 )) -signet -daemon -datadir=$datadir || { echo "Error: Failed to start bitcoind in Signet mode."; exit 1; } & sleep 5
+
+for datadir in $(ls -d signet_data-*);do
+pids=$(lsof -t -i :$((weeble+2))  )
+if [ -n "$pids" ]; then
+    echo "Found processes on port $((weeble+10)). Killing them now: $pids"
+   kill -9 $pids
+fi
+./bin/bitcoin-qt \
+-listen=$((weeble -1)) \
+-addnode=127.0.0.1:8080 \
+-addnode=127.0.0.1:$((weeble-1)) \
+-addnode=127.0.0.1:$((weeble-2)) \
+-addnode=127.0.0.1:$((weeble)) \
+-addnode=127.0.0.1:38332 \
+-addnode=127.0.0.1:38333 \
+-port=$((weeble +1 )) \
+-signet \
+-daemon \
+-datadir=$datadir || { echo "Error: Failed to start bitcoind in Signet mode."; exit 1; } & sleep 5
 
 weeble=$(( weeble + 1 ))
 
