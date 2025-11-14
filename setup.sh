@@ -16,9 +16,13 @@ mkdir -p "$SIGNET_DATADIR"
 
 # Define executable paths relative to the current working directory
 btcd="./bin/bitcoind -datadir=$SIGNET_DATADIR"
+export btcd
 bcli="./bin/bitcoin-cli -datadir=$SIGNET_DATADIR"
+export bcli
 miner="../contrib/signet/miner"
+export miner
 grinder="./bin/bitcoin-util grind"
+export grinder
 
 # Cleanup old configuration/data files for a fresh start (Crucial for debugging)
 echo "Archiving old configuration and data files..."
@@ -27,7 +31,7 @@ TIMESTAMP=$(date +%s)
 mv "$SIGNET_DATADIR/bitcoin.conf" "$SIGNET_DATADIR/bitcoin-$TIMESTAMP.conf" 2>/dev/null
 mv "$SIGNET_DATADIR/signet/peers.dat" "$SIGNET_DATADIR/signet/peers-$TIMESTAMP.dat" 2>/dev/null
 mv "$SIGNET_DATADIR/regtest" "$SIGNET_DATADIR/regtest-$TIMESTAMP" 2>/dev/null
-
+export TIMESTAMP
 # Explicitly remove wallet directories to ensure a clean start
 echo "Removing existing wallet directories if they exist..."
 rm -rf "$SIGNET_DATADIR/regtest/wallets/signer" 2>/dev/null
@@ -108,6 +112,8 @@ ADDR=$($bcli -regtest -named getnewaddress address_type="bech32")
 echo "Temporary Regtest Address: $ADDR"
 
 SIGNET_CHALLENGE=$($bcli -regtest -named getaddressinfo "$ADDR" | jq -r .scriptPubKey)
+export SIGNET_CHALLENGE
+echo $SIGNET_CHALLENGE > signetchallenge
 echo "Generated SIGNET_CHALLENGE (scriptPubKey): $SIGNET_CHALLENGE"
 
 # Stop the regtest daemon gracefully
@@ -122,7 +128,7 @@ cat <<EOF > "$SIGNET_DATADIR/bitcoin.conf"
 rpcuser=signetuser
 rpcpassword=signetpassword
 signet=1
-server=1
+#server=1
 [signet]
 rpcport=38332
 add-node=8080
@@ -170,8 +176,16 @@ echo "Miner Block Reward Address: $MINER_ADDR"
 # --- 5. Start Mining ---
 
 echo "Generating initial block with custom nBits..."
-$miner --cli "$bcli" generate --address "$MINER_ADDR" --grind-cmd "$grinder" --min-nbits --set-block-time $(date +%s) && sleep 10
+$miner --cli "$bcli" generate --address "$MINER_ADDR" --grind-cmd "$grinder" --min-nbits --set-block-time $(date +%s) && sleep 6
 
+count=0
+while ((count < 5));do
 # Start ongoing mining loop
-echo "Starting ongoing mining loop..."
-$miner --cli "$bcli" generate --address "$MINER_ADDR" --grind-cmd "$grinder" --min-nbits --ongoing
+# echo "Starting ongoing mining loop..."
+$miner --cli "$bcli" generate --address "$MINER_ADDR" --grind-cmd "$grinder" --min-nbits #--ongoing
+sleep 1;
+done
+
+ADDR=$($bcli -signet -named getnewaddress address_type="bech32")
+echo "$ADDR"
+./miner.sh || true

@@ -3,160 +3,165 @@
 
 
 
-2025-11-13T15:35:25Z Ignoring unknown configuration value signet.add-node
-2025-11-13T15:35:25Z Signet with challenge 0014225f4a2c49de6f61aaaf4a2101ad1ff9d6004a71
-2025-11-13T15:35:25Z Bitcoin Core version v30.99.0-d351bd00a4bf-dirty (release build)
-2025-11-13T15:35:25Z Signet derived magic (message start): fd148ec2
-2025-11-13T15:35:25Z Using the 'arm_shani(1way;2way)' SHA256 implementation
-2025-11-13T15:35:25Z Default data directory /Users/git/Library/Application Support/Bitcoin
-2025-11-13T15:35:25Z Using data directory /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/signet
-2025-11-13T15:35:25Z Config file: /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/bitcoin.conf
-2025-11-13T15:35:25Z Config file arg: rpcpassword=****
-2025-11-13T15:35:25Z Config file arg: rpcuser=****
-2025-11-13T15:35:25Z Config file arg: signet="1"
-2025-11-13T15:35:25Z Config file arg: [signet] daemon="1"
-2025-11-13T15:35:25Z Config file arg: [signet] rpcport="38332"
-2025-11-13T15:35:25Z Config file arg: [signet] signetchallenge="0014225f4a2c49de6f61aaaf4a2101ad1ff9d6004a71"
-2025-11-13T15:35:25Z Command-line arg: daemon=""
-2025-11-13T15:35:25Z Command-line arg: datadir="./signet_data"
-2025-11-13T15:35:25Z Command-line arg: signet=""
-2025-11-13T15:35:25Z Using at most 125 automatic connections (285 file descriptors available)
-2025-11-13T15:35:25Z Warning: relative datadir option './signet_data' specified, which will be interpreted relative to the current working directory '/Users/Shared/bitcoincore-dev/.github/bitcoin/pr896'. This is fragile, because if bitcoin is started in the future from a different location, it will be unable to locate the current data files. There could also be data loss if bitcoin is started while in a temporary directory.
-2025-11-13T15:35:25Z scheduler thread start
-2025-11-13T15:35:25Z Binding RPC on address ::1 port 38332
-2025-11-13T15:35:25Z Binding RPC on address 127.0.0.1 port 38332
-2025-11-13T15:35:25Z Using rpcuser/rpcpassword authentication.
-2025-11-13T15:35:25Z [warning] The use of rpcuser/rpcpassword is less secure, because credentials are configured in plain text. It is recommended that locally-run instances switch to cookie-based auth, or otherwise to use hashed rpcauth credentials. See share/rpcauth in the source directory for more information.
-2025-11-13T15:35:25Z Starting HTTP server with 16 worker threads
-2025-11-13T15:35:25Z Using wallet directory /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/signet/wallets
-2025-11-13T15:35:25Z init message: Verifying wallet(s)…
-2025-11-13T15:35:25Z Using /16 prefix for IP bucketing
-2025-11-13T15:35:25Z init message: Loading P2P addresses…
-2025-11-13T15:35:25Z Creating peers.dat because the file was not found ("/Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/signet/peers.dat")
-2025-11-13T15:35:25Z init message: Loading banlist…
-2025-11-13T15:35:25Z Recreating the banlist database
-2025-11-13T15:35:25Z SetNetworkActive: true
-2025-11-13T15:35:25Z /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/signet/fee_estimates.dat is not found. Continue anyway.
-2025-11-13T15:35:25Z Cache configuration:
-2025-11-13T15:35:25Z * Using 2.0 MiB for block index database
-2025-11-13T15:35:25Z * Using 8.0 MiB for chain state database
-2025-11-13T15:35:25Z * Using 440.0 MiB for in-memory UTXO set (plus up to 286.1 MiB of unused mempool space)
-2025-11-13T15:35:25Z Script verification uses 7 additional threads
-2025-11-13T15:35:25Z Using obfuscation key for blocksdir *.dat files (/Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/signet/blocks): '27faf6a7f5cc831f'
-2025-11-13T15:35:25Z Opening LevelDB in /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/signet/blocks/index
-2025-11-13T15:35:25Z Opened LevelDB successfully
-2025-11-13T15:35:25Z Using obfuscation key for /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/signet/blocks/index: 0000000000000000
-2025-11-13T15:35:25Z Using 16 MiB out of 16 MiB requested for signature cache, able to store 524288 elements
-2025-11-13T15:35:25Z Using 16 MiB out of 16 MiB requested for script execution cache, able to store 524288 elements
-2025-11-13T15:35:25Z init message: Loading block index…
-2025-11-13T15:35:25Z Validating signatures for all blocks.
-2025-11-13T15:35:25Z Setting nMinimumChainWork=0000000000000000000000000000000000000000000000000000000000000000
-2025-11-13T15:35:25Z Loading block index db: last block file = 0
-2025-11-13T15:35:25Z Loading block index db: last block file info: CBlockFileInfo(blocks=0, size=0, heights=0...0, time=1970-01-01...1970-01-01)
-2025-11-13T15:35:25Z Checking all blk files are present...
-2025-11-13T15:35:25Z Initializing chainstate Chainstate [ibd] @ height -1 (null)
-2025-11-13T15:35:25Z Opening LevelDB in /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/signet/chainstate
-2025-11-13T15:35:25Z Opened LevelDB successfully
-2025-11-13T15:35:25Z Wrote new obfuscation key for /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/signet/chainstate: ece6507fbe1ac646
-2025-11-13T15:35:25Z Using obfuscation key for /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/signet/chainstate: ece6507fbe1ac646
-2025-11-13T15:35:25Z init message: Verifying blocks…
-2025-11-13T15:35:25Z Block index and chainstate loaded
-2025-11-13T15:35:25Z Setting NODE_NETWORK on non-prune mode
-2025-11-13T15:35:25Z initload thread start
-2025-11-13T15:35:25Z UpdateTip: new best=00000008819873e925422c1ff0f99f7cc9bbb232af63a077a480a3633bee1ef6 height=0 version=0x00000001 log2_work=22.206105 tx=1 date='2020-09-01T00:00:00Z' progress=1.000000 cache=0.3MiB(0txo)
-2025-11-13T15:35:25Z Failed to open mempool file. Continuing anyway.
-2025-11-13T15:35:25Z initload thread exit
-2025-11-13T15:35:25Z block tree size = 1
-2025-11-13T15:35:25Z nBestHeight = 0
-2025-11-13T15:35:25Z mapport thread start
-2025-11-13T15:35:25Z torcontrol thread start
-2025-11-13T15:35:25Z AddLocal([2607:fb92:1c06:657a:cf1:b9b:906:47]:38333,1)
-2025-11-13T15:35:25Z Discover: 2607:fb92:1c06:657a:cf1:b9b:906:47
-2025-11-13T15:35:25Z AddLocal([2607:fb92:1c06:657a:68e8:a648:520c:795a]:38333,1)
-2025-11-13T15:35:25Z Discover: 2607:fb92:1c06:657a:68e8:a648:520c:795a
-2025-11-13T15:35:25Z AddLocal([2607:fb92:1c06:657a:e103:ce58:c19c:aeaa]:38333,1)
-2025-11-13T15:35:25Z Discover: 2607:fb92:1c06:657a:e103:ce58:c19c:aeaa
-2025-11-13T15:35:25Z AddLocal([2607:fb92:1c06:657a:1594:b17e:6bcb:3c5e]:38333,1)
-2025-11-13T15:35:25Z Discover: 2607:fb92:1c06:657a:1594:b17e:6bcb:3c5e
-2025-11-13T15:35:25Z AddLocal([2607:fb92:1c06:657a:e44c:cc91:7724:5b7a]:38333,1)
-2025-11-13T15:35:25Z Discover: 2607:fb92:1c06:657a:e44c:cc91:7724:5b7a
-2025-11-13T15:35:25Z Bound to 127.0.0.1:38334
-2025-11-13T15:35:25Z Bound to [::]:38333
-2025-11-13T15:35:25Z Bound to 0.0.0.0:38333
-2025-11-13T15:35:25Z 0 block-relay-only anchors will be tried for connections.
-2025-11-13T15:35:25Z init message: Starting network threads…
-2025-11-13T15:35:25Z dnsseed thread start
-2025-11-13T15:35:25Z 0 addresses found from DNS seeds
-2025-11-13T15:35:25Z dnsseed thread exit
-2025-11-13T15:35:25Z init message: Done loading
-2025-11-13T15:35:25Z opencon thread start
-2025-11-13T15:35:25Z msghand thread start
-2025-11-13T15:35:25Z addcon thread start
-2025-11-13T15:35:25Z net thread start
-2025-11-13T15:35:25Z [net:info] portmap: Added mapping pcp:192.168.12.214:38333 -> 192.168.2.2:38333 (for 2400s)
-2025-11-13T15:35:30Z Using SQLite Version 3.43.2
-2025-11-13T15:35:30Z Using wallet /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/signet/wallets/miner
-2025-11-13T15:35:30Z init message: Loading wallet…
-2025-11-13T15:35:30Z [miner] Legacy Wallet Keys: 0 plaintext, 0 encrypted, 0 w/ metadata, 0 total.
-2025-11-13T15:35:30Z [miner] Descriptors: 0, Descriptor Keys: 0 plaintext, 0 encrypted, 0 total.
-2025-11-13T15:35:30Z [miner] Setting spkMan to active: id = 3325ac7b3dde7c85224b1fbac5f5c9e159986a1b63be36ce48661177bf80a763, type = legacy, internal = false
-2025-11-13T15:35:30Z [miner] Setting spkMan to active: id = 938d9de129807d35dffbacb55d35620f7c23696f2b9432769725f8b52a403c6d, type = p2sh-segwit, internal = false
-2025-11-13T15:35:30Z [miner] Setting spkMan to active: id = f4b394a1c5266d6bdade865aa9dd8d81b54d239d53d32b66412e3df3429ce0e8, type = bech32, internal = false
-2025-11-13T15:35:30Z [miner] Setting spkMan to active: id = 9e96eb2456b6835f671cb0fc879c6a1e12e18bc231af68d30ed8ac2848677e98, type = bech32m, internal = false
-2025-11-13T15:35:30Z [miner] Setting spkMan to active: id = 3175199253374743c96c3342c76566150e605a84499d78faa91c3317ac7b36be, type = legacy, internal = true
-2025-11-13T15:35:30Z [miner] Setting spkMan to active: id = 66d14eea3d2471ebc425ad685d43b0e98c9dedde9764f5e74c61914e1849472a, type = p2sh-segwit, internal = true
-2025-11-13T15:35:30Z [miner] Setting spkMan to active: id = d2b6e47a7954f5095f23b49ebd8d8a0db80c4e1d888664de2c132fd22384e9ba, type = bech32, internal = true
-2025-11-13T15:35:30Z [miner] Setting spkMan to active: id = 255d9fac93262dc3eb7376eec0dc6a3260ce5558b3bfa36d318395f76b830364, type = bech32m, internal = true
-2025-11-13T15:35:30Z [miner] Wallet completed loading in             292ms
-2025-11-13T15:35:30Z [miner] setKeyPool.size() = 8000
-2025-11-13T15:35:30Z [miner] mapWallet.size() = 0
-2025-11-13T15:35:30Z [miner] m_address_book.size() = 0
-2025-11-13T15:35:30Z [miner] Setting spkMan to active: id = 0bdf7f1cb62772e19081d184b343b5a8cd64281277eb0d278d2984a28f17d814, type = legacy, internal = false
-2025-11-13T15:35:30Z [miner] Setting spkMan to active: id = 90db61567f29beb142de5e7307beef237c340a794808cfd16fbdbfcf4566c56a, type = legacy, internal = true
-2025-11-13T15:35:30Z [miner] Setting spkMan to active: id = 1a7120f008a6a32fcbc043792b9fa9a5a16afbb95836f5aa4c3e594cbd677d6b, type = p2sh-segwit, internal = false
-2025-11-13T15:35:30Z [miner] Setting spkMan to active: id = 8457a3345bbc988adc73adc4a0f86ef14ea821848aaa8a19d6f4aeca95c773b6, type = p2sh-segwit, internal = true
-2025-11-13T15:35:30Z [miner] Setting spkMan to active: id = 752ac6aee9f77ff594da67037f2d405731a0906cd9777ab11f14ce5997de82b1, type = bech32m, internal = false
-2025-11-13T15:35:31Z [miner] Setting spkMan to active: id = 07f26d8d98f4bef2890bc06dc30a3e61993b115379e8c7327c015b1bd3faebd7, type = bech32m, internal = true
-2025-11-13T15:35:31Z [miner] Setting spkMan to active: id = 5839ab0b18a71415c4570b741023de1d336ab00be374d098c774a32214b4f0f2, type = bech32, internal = false
-2025-11-13T15:35:31Z [miner] Setting spkMan to active: id = b03d1c5582d07fd3fe34eece34281353321e856333d4727eb78dc9ed12dd9587, type = bech32, internal = true
-2025-11-13T15:35:31Z [miner] RescanFromTime: Rescanning last 1 blocks
-2025-11-13T15:35:31Z [miner] Rescan started from block 00000008819873e925422c1ff0f99f7cc9bbb232af63a077a480a3633bee1ef6... (slow variant inspecting all blocks)
-2025-11-13T15:35:31Z [miner] Scanning current mempool transactions.
-2025-11-13T15:35:31Z [miner] Rescan completed in               0ms
-2025-11-13T15:35:31Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
-2025-11-13T15:35:31Z Leaving InitialBlockDownload (latching to false)
-2025-11-13T15:35:31Z UpdateTip: new best=00000176a69a5a44b86cf44516b157ecbabac3318de70a5b98f2734af4c5dd62 height=1 version=0x20000000 log2_work=23.206105 tx=2 date='2025-11-13T15:35:31Z' progress=1.000000 cache=0.3MiB(1txo)
-2025-11-13T15:35:31Z [miner] AddToWallet 979f26aae59bc2b164a9ef8589bdb36d4a7905e1bf1b0c697846908eda17d425  new Confirmed (block=00000176a69a5a44b86cf44516b157ecbabac3318de70a5b98f2734af4c5dd62, height=1, index=0)
-2025-11-13T15:36:02Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
-2025-11-13T15:36:02Z UpdateTip: new best=000000ccae1cce9fe2f20cd327106a17c0ca0099cbcda44e4d1ab4e3a6afc0a6 height=2 version=0x20000000 log2_work=23.791067 tx=3 date='2025-11-13T15:45:31Z' progress=1.000000 cache=0.3MiB(2txo)
-2025-11-13T15:36:26Z Adding fixed seeds as 60 seconds have passed and addrman is empty for at least one reachable network
-2025-11-13T15:36:26Z Added 0 fixed seeds from reachable networks.
-2025-11-13T15:39:15Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
-2025-11-13T15:39:16Z UpdateTip: new best=000000f9a87c58ac63bb8a12a51719e8f2f5c4d2705a9b169209e9e360033264 height=3 version=0x20000000 log2_work=24.206105 tx=4 date='2025-11-13T15:55:31Z' progress=1.000000 cache=0.3MiB(3txo)
-2025-11-13T15:40:24Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
-2025-11-13T15:40:24Z UpdateTip: new best=0000014ffe02f3ea6de1ccf6f6eeca4dd54ee95d830f8ff11655b43401143577 height=4 version=0x20000000 log2_work=24.528033 tx=5 date='2025-11-13T16:05:31Z' progress=1.000000 cache=0.3MiB(4txo)
-2025-11-13T15:40:51Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
-2025-11-13T15:40:52Z UpdateTip: new best=000002159b145d0a22c9ca17405304ed44af827e42b6c74bd59467177ff60b80 height=5 version=0x20000000 log2_work=24.791067 tx=6 date='2025-11-13T16:15:31Z' progress=1.000000 cache=0.3MiB(5txo)
-2025-11-13T15:40:52Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
-2025-11-13T15:40:52Z UpdateTip: new best=00000157321fa97a738787eac6746c0fd47c6424a1bafcf0c971e7564781b5a4 height=6 version=0x20000000 log2_work=25.013459 tx=7 date='2025-11-13T16:25:31Z' progress=1.000000 cache=0.3MiB(6txo)
-2025-11-13T15:40:52Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
-2025-11-13T15:40:53Z UpdateTip: new best=000003288b6324c0dfbdd7836ea2ad933ed9865e19678fa66109a9e5ffd76468 height=7 version=0x20000000 log2_work=25.206105 tx=8 date='2025-11-13T16:35:31Z' progress=1.000000 cache=0.3MiB(7txo)
-2025-11-13T15:40:53Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
-2025-11-13T15:40:54Z UpdateTip: new best=000002bf674f9fe4660eecd37eefd1910487de4fee1cb53480fef6c7c0d27a40 height=8 version=0x20000000 log2_work=25.376030 tx=9 date='2025-11-13T16:45:31Z' progress=1.000000 cache=0.3MiB(8txo)
-2025-11-13T15:40:54Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
-2025-11-13T15:40:55Z UpdateTip: new best=000002819bf585164f041729938c357cccb1b8c16d29a1b60b4ecef490d1e977 height=9 version=0x20000000 log2_work=25.528033 tx=10 date='2025-11-13T16:55:31Z' progress=1.000000 cache=0.3MiB(9txo)
-2025-11-13T15:40:55Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
-2025-11-13T15:40:55Z UpdateTip: new best=0000008dee3d4eb95401caa6dd3f245db0cb7031a398c317ad88ea4871864b88 height=10 version=0x20000000 log2_work=25.665536 tx=11 date='2025-11-13T17:05:31Z' progress=1.000000 cache=0.3MiB(10txo)
-2025-11-13T15:40:55Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
-2025-11-13T15:40:57Z UpdateTip: new best=0000031854ab883902eb17ad62b38f923d4ad25070d1790a5947af20f76912eb height=11 version=0x20000000 log2_work=25.791067 tx=12 date='2025-11-13T17:15:31Z' progress=1.000000 cache=0.3MiB(11txo)
-2025-11-13T15:40:57Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
-2025-11-13T15:40:58Z UpdateTip: new best=000000d5d13c451c9bdda724512cb0e6ec987d74e865a70dabb1da091adc6e05 height=12 version=0x20000000 log2_work=25.906544 tx=13 date='2025-11-13T17:25:31Z' progress=1.000000 cache=0.3MiB(12txo)
-2025-11-13T15:40:59Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
-2025-11-13T15:41:00Z UpdateTip: new best=0000015542ec7df78c2c970e4c8d80ae6c6eccc63c712c8d614d917d016db921 height=13 version=0x20000000 log2_work=26.013459 tx=14 date='2025-11-13T17:35:31Z' progress=1.000000 cache=0.3MiB(13txo)
-2025-11-13T15:50:16Z ThreadRPCServer incorrect password attempt from 127.0.0.1:65346
-2025-11-13T15:50:31Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
-2025-11-13T15:50:31Z UpdateTip: new best=000001d5b1c4d3bda44d75d16ef10de18291927633cae72b1b808fe65493401a height=14 version=0x20000000 log2_work=26.112995 tx=15 date='2025-11-13T17:45:31Z' progress=1.000000 cache=0.3MiB(14txo)
-2025-11-13T15:50:36Z ThreadRPCServer incorrect password attempt from 127.0.0.1:65358
-2025-11-13T15:59:49Z [net:info] portmap: Added mapping pcp:192.168.12.214:38333 -> 192.168.2.2:38333 (for 2400s)
-2025-11-13T16:00:31Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
-2025-11-13T16:00:31Z UpdateTip: new best=000003229cf07c04ca66660cb139c32c126bda2c43f41e1073d3ba7fdf5854e4 height=15 version=0x20000000 log2_work=26.206105 tx=16 date='2025-11-13T17:55:31Z' progress=1.000000 cache=0.3MiB(15txo)
+2025-11-13T23:06:43Z Ignoring unknown configuration value signet.add-node
+2025-11-13T23:06:43Z Signet with challenge 001469d003c76f7d7fbdda10dc822cfa749254d5b93c
+2025-11-13T23:06:43Z Bitcoin Core version v30.99.0-d351bd00a4bf-dirty (release build)
+2025-11-13T23:06:43Z Signet derived magic (message start): 9a912bfe
+2025-11-13T23:06:43Z Using the 'arm_shani(1way;2way)' SHA256 implementation
+2025-11-13T23:06:43Z Default data directory /Users/git/Library/Application Support/Bitcoin
+2025-11-13T23:06:43Z Using data directory /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/signet
+2025-11-13T23:06:43Z Config file: /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/bitcoin.conf
+2025-11-13T23:06:43Z Config file arg: rpcpassword=****
+2025-11-13T23:06:43Z Config file arg: rpcuser=****
+2025-11-13T23:06:43Z Config file arg: signet="1"
+2025-11-13T23:06:43Z Config file arg: [signet] daemon="1"
+2025-11-13T23:06:43Z Config file arg: [signet] rpcport="38332"
+2025-11-13T23:06:43Z Config file arg: [signet] signetchallenge="001469d003c76f7d7fbdda10dc822cfa749254d5b93c"
+2025-11-13T23:06:43Z Command-line arg: daemon=""
+2025-11-13T23:06:43Z Command-line arg: datadir="./signet_data"
+2025-11-13T23:06:43Z Command-line arg: signet=""
+2025-11-13T23:06:43Z Using at most 125 automatic connections (285 file descriptors available)
+2025-11-13T23:06:43Z Warning: relative datadir option './signet_data' specified, which will be interpreted relative to the current working directory '/Users/Shared/bitcoincore-dev/.github/bitcoin/pr896'. This is fragile, because if bitcoin is started in the future from a different location, it will be unable to locate the current data files. There could also be data loss if bitcoin is started while in a temporary directory.
+2025-11-13T23:06:43Z scheduler thread start
+2025-11-13T23:06:43Z Binding RPC on address ::1 port 38332
+2025-11-13T23:06:43Z Binding RPC on address 127.0.0.1 port 38332
+2025-11-13T23:06:43Z Using rpcuser/rpcpassword authentication.
+2025-11-13T23:06:43Z [warning] The use of rpcuser/rpcpassword is less secure, because credentials are configured in plain text. It is recommended that locally-run instances switch to cookie-based auth, or otherwise to use hashed rpcauth credentials. See share/rpcauth in the source directory for more information.
+2025-11-13T23:06:43Z Starting HTTP server with 16 worker threads
+2025-11-13T23:06:43Z Using wallet directory /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/signet/wallets
+2025-11-13T23:06:43Z init message: Verifying wallet(s)…
+2025-11-13T23:06:43Z Using /16 prefix for IP bucketing
+2025-11-13T23:06:43Z init message: Loading P2P addresses…
+2025-11-13T23:06:43Z Creating peers.dat because the file was not found ("/Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/signet/peers.dat")
+2025-11-13T23:06:43Z init message: Loading banlist…
+2025-11-13T23:06:43Z Recreating the banlist database
+2025-11-13T23:06:43Z SetNetworkActive: true
+2025-11-13T23:06:43Z /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/signet/fee_estimates.dat is not found. Continue anyway.
+2025-11-13T23:06:43Z Cache configuration:
+2025-11-13T23:06:43Z * Using 2.0 MiB for block index database
+2025-11-13T23:06:43Z * Using 8.0 MiB for chain state database
+2025-11-13T23:06:43Z * Using 440.0 MiB for in-memory UTXO set (plus up to 286.1 MiB of unused mempool space)
+2025-11-13T23:06:43Z Script verification uses 7 additional threads
+2025-11-13T23:06:43Z Using obfuscation key for blocksdir *.dat files (/Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/signet/blocks): '6d20e3922dbd80cb'
+2025-11-13T23:06:43Z Opening LevelDB in /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/signet/blocks/index
+2025-11-13T23:06:43Z Opened LevelDB successfully
+2025-11-13T23:06:43Z Using obfuscation key for /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/signet/blocks/index: 0000000000000000
+2025-11-13T23:06:43Z Using 16 MiB out of 16 MiB requested for signature cache, able to store 524288 elements
+2025-11-13T23:06:43Z Using 16 MiB out of 16 MiB requested for script execution cache, able to store 524288 elements
+2025-11-13T23:06:43Z init message: Loading block index…
+2025-11-13T23:06:43Z Validating signatures for all blocks.
+2025-11-13T23:06:43Z Setting nMinimumChainWork=0000000000000000000000000000000000000000000000000000000000000000
+2025-11-13T23:06:43Z Loading block index db: last block file = 0
+2025-11-13T23:06:43Z Loading block index db: last block file info: CBlockFileInfo(blocks=0, size=0, heights=0...0, time=1970-01-01...1970-01-01)
+2025-11-13T23:06:43Z Checking all blk files are present...
+2025-11-13T23:06:43Z Initializing chainstate Chainstate [ibd] @ height -1 (null)
+2025-11-13T23:06:43Z Opening LevelDB in /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/signet/chainstate
+2025-11-13T23:06:43Z Opened LevelDB successfully
+2025-11-13T23:06:43Z Wrote new obfuscation key for /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/signet/chainstate: 8e20146f562d14d4
+2025-11-13T23:06:43Z Using obfuscation key for /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/signet/chainstate: 8e20146f562d14d4
+2025-11-13T23:06:43Z init message: Verifying blocks…
+2025-11-13T23:06:43Z Block index and chainstate loaded
+2025-11-13T23:06:43Z Setting NODE_NETWORK on non-prune mode
+2025-11-13T23:06:43Z initload thread start
+2025-11-13T23:06:43Z UpdateTip: new best=00000008819873e925422c1ff0f99f7cc9bbb232af63a077a480a3633bee1ef6 height=0 version=0x00000001 log2_work=22.206105 tx=1 date='2020-09-01T00:00:00Z' progress=1.000000 cache=0.3MiB(0txo)
+2025-11-13T23:06:43Z Failed to open mempool file. Continuing anyway.
+2025-11-13T23:06:43Z initload thread exit
+2025-11-13T23:06:43Z block tree size = 1
+2025-11-13T23:06:43Z nBestHeight = 0
+2025-11-13T23:06:43Z mapport thread start
+2025-11-13T23:06:43Z torcontrol thread start
+2025-11-13T23:06:43Z AddLocal([2607:fb92:1c06:657a:cf1:b9b:906:47]:38333,1)
+2025-11-13T23:06:43Z Discover: 2607:fb92:1c06:657a:cf1:b9b:906:47
+2025-11-13T23:06:43Z AddLocal([2607:fb92:1c06:657a:68e8:a648:520c:795a]:38333,1)
+2025-11-13T23:06:43Z Discover: 2607:fb92:1c06:657a:68e8:a648:520c:795a
+2025-11-13T23:06:43Z AddLocal([2607:fb92:1c06:657a:e103:ce58:c19c:aeaa]:38333,1)
+2025-11-13T23:06:43Z Discover: 2607:fb92:1c06:657a:e103:ce58:c19c:aeaa
+2025-11-13T23:06:43Z AddLocal([2607:fb92:1c06:657a:1594:b17e:6bcb:3c5e]:38333,1)
+2025-11-13T23:06:43Z Discover: 2607:fb92:1c06:657a:1594:b17e:6bcb:3c5e
+2025-11-13T23:06:43Z AddLocal([2607:fb92:1c06:657a:e44c:cc91:7724:5b7a]:38333,1)
+2025-11-13T23:06:43Z Discover: 2607:fb92:1c06:657a:e44c:cc91:7724:5b7a
+2025-11-13T23:06:43Z Bound to 127.0.0.1:38334
+2025-11-13T23:06:43Z Bound to [::]:38333
+2025-11-13T23:06:43Z Bound to 0.0.0.0:38333
+2025-11-13T23:06:43Z 0 block-relay-only anchors will be tried for connections.
+2025-11-13T23:06:43Z init message: Starting network threads…
+2025-11-13T23:06:43Z net thread start
+2025-11-13T23:06:43Z dnsseed thread start
+2025-11-13T23:06:43Z addcon thread start
+2025-11-13T23:06:43Z 0 addresses found from DNS seeds
+2025-11-13T23:06:43Z opencon thread start
+2025-11-13T23:06:43Z msghand thread start
+2025-11-13T23:06:43Z init message: Done loading
+2025-11-13T23:06:43Z dnsseed thread exit
+2025-11-13T23:06:43Z [net:info] portmap: Added mapping pcp:192.168.12.214:38333 -> 192.168.2.2:38333 (for 2400s)
+2025-11-13T23:06:48Z Using SQLite Version 3.43.2
+2025-11-13T23:06:48Z Using wallet /Users/Shared/bitcoincore-dev/.github/bitcoin/pr896/signet_data/signet/wallets/miner
+2025-11-13T23:06:48Z init message: Loading wallet…
+2025-11-13T23:06:48Z [miner] Legacy Wallet Keys: 0 plaintext, 0 encrypted, 0 w/ metadata, 0 total.
+2025-11-13T23:06:48Z [miner] Descriptors: 0, Descriptor Keys: 0 plaintext, 0 encrypted, 0 total.
+2025-11-13T23:06:48Z [miner] Setting spkMan to active: id = 751ac03fc3ef7eddcbab28eb93bc14a193cc433377e34a61c868c8f21540dcdf, type = legacy, internal = false
+2025-11-13T23:06:48Z [miner] Setting spkMan to active: id = d6c16ea4c348bd2f1564cf410792bbb005d2d0212f52d3e0f2cd409bea87dd91, type = p2sh-segwit, internal = false
+2025-11-13T23:06:48Z [miner] Setting spkMan to active: id = 36aefe01c4f7d70b7751bbbe412a3bf37d55f70921c60a8acc18da7f9cc299f9, type = bech32, internal = false
+2025-11-13T23:06:48Z [miner] Setting spkMan to active: id = 13b2b388d389d329a87a445ddd861e8ddadb87ba9cf2065f8a59a148335740c3, type = bech32m, internal = false
+2025-11-13T23:06:48Z [miner] Setting spkMan to active: id = 1ad191f2a0701812ef6f548121e6c0d4aead3cd2b8b5d836acf7348954274cba, type = legacy, internal = true
+2025-11-13T23:06:49Z [miner] Setting spkMan to active: id = 70de2614cfb6329bfa63baf13564015fc4b5744ab0ebb3090d50822d19076ce0, type = p2sh-segwit, internal = true
+2025-11-13T23:06:49Z [miner] Setting spkMan to active: id = 537b2fc8fc32b2328652355e2dbfea6df43a5e3d5c18324244124fa978cf76b5, type = bech32, internal = true
+2025-11-13T23:06:49Z [miner] Setting spkMan to active: id = 331a95aebe83fd4634f171a261ab00157cb7087c5a082b15a463675f9ffd4817, type = bech32m, internal = true
+2025-11-13T23:06:49Z [miner] Wallet completed loading in             295ms
+2025-11-13T23:06:49Z [miner] setKeyPool.size() = 8000
+2025-11-13T23:06:49Z [miner] mapWallet.size() = 0
+2025-11-13T23:06:49Z [miner] m_address_book.size() = 0
+2025-11-13T23:06:49Z [miner] Setting spkMan to active: id = a01975a81d95d86ae43d33429806b3489bf2aa3b9f0896d1e6a2d3b87d8948a2, type = legacy, internal = false
+2025-11-13T23:06:49Z [miner] Setting spkMan to active: id = d7159b13b1e26d05d483e6e458ad58586b5f3119e423604187f7d258a6da6314, type = legacy, internal = true
+2025-11-13T23:06:49Z [miner] Setting spkMan to active: id = 3763a09beff958eb61d3ea1769218c6cbc67ee8a19fcbd98e294460ac21a8c3b, type = p2sh-segwit, internal = false
+2025-11-13T23:06:49Z [miner] Setting spkMan to active: id = 3f61614bd312417f212b94fafd74770b1f686d41e9535d8dc126291d6049797f, type = p2sh-segwit, internal = true
+2025-11-13T23:06:49Z [miner] Setting spkMan to active: id = b2f42732f4c86f56b156e332945e06b03b16a5797c850d8e2845514de375de1e, type = bech32m, internal = false
+2025-11-13T23:06:49Z [miner] Setting spkMan to active: id = 06bdbd51486c8904e3e77f86fb5fc604428904bea270533c3f98b82911a83184, type = bech32m, internal = true
+2025-11-13T23:06:49Z [miner] Setting spkMan to active: id = 20e32c071de1a65cc92ed3ff5b089edf6b24be5ea42bdf759c706a7ae5dbd58e, type = bech32, internal = false
+2025-11-13T23:06:49Z [miner] Setting spkMan to active: id = 8d0f429d332ee26ddf9f071f26ec81e7cc4d07354e7f78698d8e2aaa76f4004d, type = bech32, internal = true
+2025-11-13T23:06:49Z [miner] RescanFromTime: Rescanning last 1 blocks
+2025-11-13T23:06:49Z [miner] Rescan started from block 00000008819873e925422c1ff0f99f7cc9bbb232af63a077a480a3633bee1ef6... (slow variant inspecting all blocks)
+2025-11-13T23:06:49Z [miner] Scanning current mempool transactions.
+2025-11-13T23:06:49Z [miner] Rescan completed in               0ms
+2025-11-13T23:06:49Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
+2025-11-13T23:06:50Z Leaving InitialBlockDownload (latching to false)
+2025-11-13T23:06:50Z UpdateTip: new best=0000019a47059cfe673fddc4bc2e3dbdde862392fb21f9b406abbf555d819a5e height=1 version=0x20000000 log2_work=23.206105 tx=2 date='2025-11-13T23:06:49Z' progress=1.000000 cache=0.3MiB(1txo)
+2025-11-13T23:06:50Z [miner] AddToWallet 6a028a5c2fa84a25034d161259ed1ef68a9a57e5af8b6320ed325b2ad3e5825b  new Confirmed (block=0000019a47059cfe673fddc4bc2e3dbdde862392fb21f9b406abbf555d819a5e, height=1, index=0)
+2025-11-13T23:06:56Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
+2025-11-13T23:06:58Z UpdateTip: new best=00000284f9ee9be46f3fab24942bd1d1be3173f0ad07687232c90e64aac92aa4 height=2 version=0x20000000 log2_work=23.791067 tx=3 date='2025-11-13T23:16:49Z' progress=1.000000 cache=0.3MiB(2txo)
+2025-11-13T23:06:58Z [miner] AddToWallet de76856d345710d5222087cd622efc5f9171b1fce27ebc5ff2d7191708c932d5  new Confirmed (block=00000284f9ee9be46f3fab24942bd1d1be3173f0ad07687232c90e64aac92aa4, height=2, index=0)
+2025-11-13T23:06:59Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
+2025-11-13T23:07:00Z UpdateTip: new best=000002826799ef41e4c56b033210a1c3e638220bd0a5c1d46f371a98c1c756cd height=3 version=0x20000000 log2_work=24.206105 tx=4 date='2025-11-13T23:26:49Z' progress=1.000000 cache=0.3MiB(3txo)
+2025-11-13T23:07:00Z [miner] AddToWallet ba306115748bd929f852aa2d36eb353fb9d45202be34576b53be3113967ff5ad  new Confirmed (block=000002826799ef41e4c56b033210a1c3e638220bd0a5c1d46f371a98c1c756cd, height=3, index=0)
+2025-11-13T23:07:01Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
+2025-11-13T23:07:02Z UpdateTip: new best=0000029b9310b14398a3db9637f62bac09a8ed5245916ec77f3da10092b80c02 height=4 version=0x20000000 log2_work=24.528033 tx=5 date='2025-11-13T23:36:49Z' progress=1.000000 cache=0.3MiB(4txo)
+2025-11-13T23:07:02Z [miner] AddToWallet 74fe359f1ab89607d749f562432cbedabc033ad0e6acbbabfac7af7c4fb649e8  new Confirmed (block=0000029b9310b14398a3db9637f62bac09a8ed5245916ec77f3da10092b80c02, height=4, index=0)
+2025-11-13T23:07:03Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
+2025-11-13T23:07:03Z UpdateTip: new best=00000273c2eec0a2bbe2272e1d9428d142d8768cd787ef2f074044e3fe246817 height=5 version=0x20000000 log2_work=24.791067 tx=6 date='2025-11-13T23:46:49Z' progress=1.000000 cache=0.3MiB(5txo)
+2025-11-13T23:07:03Z [miner] AddToWallet cc9f870d6cc55b2e080b8394343c95df0ca5ae35e9ce5a1ea992a198ad559c23  new Confirmed (block=00000273c2eec0a2bbe2272e1d9428d142d8768cd787ef2f074044e3fe246817, height=5, index=0)
+2025-11-13T23:07:04Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
+2025-11-13T23:07:04Z UpdateTip: new best=0000011cf98816890fecfd12de9548dc72abad9e6739b5a142fe4082f9132096 height=6 version=0x20000000 log2_work=25.013459 tx=7 date='2025-11-13T23:56:49Z' progress=1.000000 cache=0.3MiB(6txo)
+2025-11-13T23:07:04Z [miner] AddToWallet 927b32ffa6877f70a1b09e2172550677024404fb3a5072026de7b759b6df785e  new Confirmed (block=0000011cf98816890fecfd12de9548dc72abad9e6739b5a142fe4082f9132096, height=6, index=0)
+2025-11-13T23:07:05Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
+2025-11-13T23:07:07Z UpdateTip: new best=000002c6cae479a1c06797ba3b9990c4b6417c73775627a909616a0613981769 height=7 version=0x20000000 log2_work=25.206105 tx=8 date='2025-11-14T00:06:49Z' progress=1.000000 cache=0.3MiB(7txo)
+2025-11-13T23:07:07Z [miner] AddToWallet c7229f425e3a90f4a3b240d2464b31aa001c4e43d0853b9b9f017d5353609373  new Confirmed (block=000002c6cae479a1c06797ba3b9990c4b6417c73775627a909616a0613981769, height=7, index=0)
+2025-11-13T23:07:08Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
+2025-11-13T23:07:08Z UpdateTip: new best=0000019d3b22ed984e99d1b4a03a0a20506b7e87ede720c52b78cb8789310e0a height=8 version=0x20000000 log2_work=25.376030 tx=9 date='2025-11-14T00:16:49Z' progress=1.000000 cache=0.3MiB(8txo)
+2025-11-13T23:07:08Z [miner] AddToWallet 74da728cf3548a4f2d3cd65f653eef973ce2da82ce3b1f7eb222d8aa781d6882  new Confirmed (block=0000019d3b22ed984e99d1b4a03a0a20506b7e87ede720c52b78cb8789310e0a, height=8, index=0)
+2025-11-13T23:07:09Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
+2025-11-13T23:07:09Z UpdateTip: new best=0000005a18399aaa80073c3f121a652cef4fe012fc2fe454b65a806a277ba2fe height=9 version=0x20000000 log2_work=25.528033 tx=10 date='2025-11-14T00:26:49Z' progress=1.000000 cache=0.3MiB(9txo)
+2025-11-13T23:07:09Z [miner] AddToWallet ed3b24329dbf57909a2653aa411aed8cbae57eb0e4a50c81ada389ea8efb013e  new Confirmed (block=0000005a18399aaa80073c3f121a652cef4fe012fc2fe454b65a806a277ba2fe, height=9, index=0)
+2025-11-13T23:07:10Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
+2025-11-13T23:07:12Z UpdateTip: new best=000001deb18056879ba76c677c87d7b9f83c514bcdfe04aa4d88b7fb32626ddd height=10 version=0x20000000 log2_work=25.665536 tx=11 date='2025-11-14T00:36:49Z' progress=1.000000 cache=0.3MiB(10txo)
+2025-11-13T23:07:12Z [miner] AddToWallet da0725daaa50c180bc5bd88be0101b361ce668d6679d6d5280c2515c32d9cfb9  new Confirmed (block=000001deb18056879ba76c677c87d7b9f83c514bcdfe04aa4d88b7fb32626ddd, height=10, index=0)
+2025-11-13T23:07:13Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
+2025-11-13T23:07:13Z UpdateTip: new best=000001aa872b652768a821b8f52df996e0657d0101153626e3d6cdf2a80c644f height=11 version=0x20000000 log2_work=25.791067 tx=12 date='2025-11-14T00:46:49Z' progress=1.000000 cache=0.3MiB(11txo)
+2025-11-13T23:07:13Z [miner] AddToWallet 80b0b3bd78172ae277cda0ce944e614ca38258c1dc28e5e63f5e4b3aa3d52660  new Confirmed (block=000001aa872b652768a821b8f52df996e0657d0101153626e3d6cdf2a80c644f, height=11, index=0)
+2025-11-13T23:07:14Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
+2025-11-13T23:07:14Z UpdateTip: new best=0000017320430b9c90c09b0155916419eaa37ea4a940bc615a3e7a4e52100217 height=12 version=0x20000000 log2_work=25.906544 tx=13 date='2025-11-14T00:56:49Z' progress=1.000000 cache=0.3MiB(12txo)
+2025-11-13T23:07:14Z [miner] AddToWallet 417f7bd5e08e719f9423af5e8a438ad277bc3610c0b5b9b746add34d3bcb9e68  new Confirmed (block=0000017320430b9c90c09b0155916419eaa37ea4a940bc615a3e7a4e52100217, height=12, index=0)
+2025-11-13T23:07:44Z Adding fixed seeds as 60 seconds have passed and addrman is empty for at least one reachable network
+2025-11-13T23:07:44Z Added 0 fixed seeds from reachable networks.
+2025-11-13T23:11:49Z CreateNewBlock(): block weight: 800 txs: 0 fees: 0 sigops 400
+2025-11-13T23:11:50Z UpdateTip: new best=000002df8bc80833ef8d2326706e42c02d21384ee4fbd4d79d5a793112c506ff height=13 version=0x20000000 log2_work=26.013459 tx=14 date='2025-11-14T01:06:49Z' progress=1.000000 cache=0.3MiB(13txo)
+2025-11-13T23:11:50Z [miner] AddToWallet 87cd9c8a6251c7537b674c455118a79e92ec2a6576e8dec1e402b96b9f9082e7  new Confirmed (block=000002df8bc80833ef8d2326706e42c02d21384ee4fbd4d79d5a793112c506ff, height=13, index=0)
