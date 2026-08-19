@@ -25,6 +25,7 @@ GUIX_SIGS_REPO="${GUIX_CONTAINER_GUIX_SIGS_REPO:-}"
 SIGNER="${GUIX_CONTAINER_SIGNER:-}"
 RELEASE_STYLE="${GUIX_CONTAINER_RELEASE_STYLE:-0}"
 GUIX_SIGS_CONTAINER_PATH="/bitcoin/guix.sigs"
+GNUPGHOME="${GUIX_CONTAINER_GNUPGHOME:-$HOME/.gnupg}"
 AUTO_IMAGE_CONTEXT=""
 ENV_FORWARD=()
 MOUNT_ARGS=()
@@ -41,10 +42,11 @@ print_release_style_help() {
 Release-style follow-up commands:
   source contrib/shell/git-utils.bash
   uname -m
-  find guix-build-\$(git_head_version)/output/ -type f -print0 | env LC_ALL=C sort -z | xargs -r0 sha256sum
-  env GUIX_SIGS_REPO=<path/to/guix.sigs> SIGNER=<gpg-key-name> ./contrib/guix/guix-attest
-  git -C <path/to/guix.sigs> pull
-  env GUIX_SIGS_REPO=<path/to/guix.sigs> ./contrib/guix/guix-verify
+  build_dir="\$(find . -maxdepth 2 -type d -path './guix-build-*/output' | head -n1)"
+  find "\$build_dir" -type f -print0 | env LC_ALL=C sort -z | xargs -r0 sha256sum
+  env GUIX_SIGS_REPO=${GUIX_SIGS_CONTAINER_PATH} SIGNER=${SIGNER} ./contrib/guix/guix-attest
+  git -C ${GUIX_SIGS_CONTAINER_PATH} pull
+  env GUIX_SIGS_REPO=${GUIX_SIGS_CONTAINER_PATH} ./contrib/guix/guix-verify
 EOF
 }
 
@@ -85,6 +87,40 @@ prepare_guix_sigs_mount() {
   ENV_FORWARD+=(-e "GUIX_SIGS_REPO=${GUIX_SIGS_CONTAINER_PATH}")
 }
 
+prepare_gnupg_mount() {
+  if [[ "$RELEASE_STYLE" != 1 ]]; then
+    return
+  fi
+
+  GNUPGHOME="$(cd "$GNUPGHOME" && pwd -P)"
+  if [[ ! -d "$GNUPGHOME" ]]; then
+    echo "Missing GNUPG home: $GNUPGHOME" >&2
+    exit 1
+  fi
+
+  MOUNT_ARGS+=(-v "${GNUPGHOME}:${GNUPGHOME}")
+  ENV_FORWARD+=(-e "GNUPGHOME=${GNUPGHOME}")
+}
+
+ensure_release_style_tools() {
+  if [[ "$RELEASE_STYLE" != 1 ]]; then
+    return
+  fi
+
+  if "$ENGINE" exec "$CONTAINER_NAME" sh -lc 'command -v gpg >/dev/null 2>&1'; then
+    return
+  fi
+
+  if "$ENGINE" exec "$CONTAINER_NAME" sh -lc 'command -v apk >/dev/null 2>&1'; then
+    echo "Installing gnupg in container..." >&2
+    "$ENGINE" exec "$CONTAINER_NAME" sh -lc 'apk add --no-cache gnupg >/dev/null'
+    return
+  fi
+
+  echo "Release style requires gpg, but no package manager was found in the container" >&2
+  exit 1
+}
+
 usage() {
   cat <<EOF
 Usage: guix-container-macos.sh [OPTIONS] [COMMAND...]
@@ -118,6 +154,7 @@ Options:
   --release-style      Print post-build release steps
   --guix-sigs-repo PATH  Path to guix.sigs for attest/verify
   --signer NAME       GPG key name for guix-attest
+  --gnupg-home PATH   Mount host GnuPG home into the container (default: $GNUPGHOME)
 
 Examples:
   ./scripts/guix-container-macos.sh
@@ -137,7 +174,8 @@ Environment variables:
   GUIX_CONTAINER_SDK_PATH, GUIX_CONTAINER_SDK_TARBALL, GUIX_CONTAINER_SDK_URL,
   GUIX_CONTAINER_XCODE_VERSION, GUIX_CONTAINER_XCODE_BUILD_ID,
   GUIX_CONTAINER_SDK_REPO_PATH, GUIX_CONTAINER_SDK_REPO_URL, DOCKER_HOST_SHARE_ROOT,
-  GUIX_CONTAINER_GUIX_SIGS_REPO, GUIX_CONTAINER_SIGNER, GUIX_CONTAINER_RELEASE_STYLE
+  GUIX_CONTAINER_GUIX_SIGS_REPO, GUIX_CONTAINER_SIGNER, GUIX_CONTAINER_RELEASE_STYLE,
+  GUIX_CONTAINER_GNUPGHOME
 EOF
 }
 
@@ -397,6 +435,10 @@ while (($#)); do
       shift
       SIGNER="${1:?missing value for --signer}"
       ;;
+    --gnupg-home)
+      shift
+      GNUPGHOME="${1:?missing value for --gnupg-home}"
+      ;;
     --)
       shift
       break
@@ -420,6 +462,7 @@ prepare_sdk_mount
 choose_default_hosts
 validate_release_style_args
 prepare_guix_sigs_mount
+prepare_gnupg_mount
 populate_env_forward
 
 if [[ "$ENGINE" == docker ]]; then
@@ -495,6 +538,7 @@ if (($# == 0)); then
 fi
 
 if [[ "$RELEASE_STYLE" == 1 ]]; then
+  ensure_release_style_tools
   print_release_style_help
 fi
 
