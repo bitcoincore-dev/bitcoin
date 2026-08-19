@@ -279,10 +279,10 @@ prepare_sdk_mount() {
       if [[ ! -f "$sdk_tarball" ]]; then
         curl -fsSL "${SDK_URL}/${extracted_name}.tar" -o "$sdk_tarball"
       fi
-      SDK_TEMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/guix-sdk.XXXXXX")"
-      trap 'rm -rf "$SDK_TEMP_DIR"' EXIT
-      tar -C "$SDK_TEMP_DIR" -xf "$sdk_tarball"
-      SDK_PATH="$SDK_TEMP_DIR"
+      if [[ ! -d "$DOCKER_HOST_SHARE_ROOT/$extracted_name" ]]; then
+        tar -C "$DOCKER_HOST_SHARE_ROOT" -xf "$sdk_tarball"
+      fi
+      SDK_PATH="$DOCKER_HOST_SHARE_ROOT"
       echo "Using downloaded SDK tarball: $sdk_tarball" >&2
     fi
   fi
