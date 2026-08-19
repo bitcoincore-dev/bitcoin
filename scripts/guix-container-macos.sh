@@ -13,8 +13,19 @@ BUILD_NO_CACHE="${GUIX_CONTAINER_BUILD_NO_CACHE:-1}"
 BUILD_PULL="${GUIX_CONTAINER_BUILD_PULL:-1}"
 AUTO_BUILD_IMAGE="${GUIX_CONTAINER_AUTO_BUILD_IMAGE:-1}"
 GUIX_DOWNLOAD_PATH="${GUIX_CONTAINER_GUIX_DOWNLOAD_PATH:-https://ftp.gnu.org/gnu/guix}"
+SDK_PATH="${GUIX_CONTAINER_SDK_PATH:-}"
+SDK_TARBALL="${GUIX_CONTAINER_SDK_TARBALL:-}"
 AUTO_IMAGE_CONTEXT=""
 ENV_FORWARD=()
+MOUNT_ARGS=()
+SDK_TEMP_DIR=""
+SDK_MOUNT_ROOT=""
+DOCKER_HOST_SHARE_ROOT="${DOCKER_HOST_SHARE_ROOT:-$HOME/macOS-SDKs}"
+
+dir_has_entries() {
+  local dir="$1"
+  [[ -d "$dir" ]] && find "$dir" -mindepth 1 -maxdepth 1 | grep -q .
+}
 
 usage() {
   cat <<EOF
@@ -39,6 +50,8 @@ Options:
   --build-target T  Build target to pass to the image build
   --build-allow-cache  Allow cache when building the image
   --guix-download-path URL  Guix binary mirror used during image build
+  --sdk-path PATH   Mount an extracted macOS SDK directory into the container
+  --sdk-tarball FILE Extract an SDK tarball into a temp dir and mount it
 
 Examples:
   ./scripts/guix-container-macos.sh
@@ -54,7 +67,8 @@ Environment variables:
   GUIX_CONTAINER_ENGINE, GUIX_CONTAINER_IMAGE, GUIX_CONTAINER_NAME,
   GUIX_CONTAINER_REPO_PATH, GUIX_CONTAINER_WORKDIR, GUIX_CONTAINER_IMAGE_CONTEXT,
   GUIX_CONTAINER_IMAGEFILE_URL, GUIX_CONTAINER_BUILD_TARGET, GUIX_CONTAINER_BUILD_NO_CACHE,
-  GUIX_CONTAINER_BUILD_PULL, GUIX_CONTAINER_AUTO_BUILD_IMAGE, GUIX_CONTAINER_GUIX_DOWNLOAD_PATH
+  GUIX_CONTAINER_BUILD_PULL, GUIX_CONTAINER_AUTO_BUILD_IMAGE, GUIX_CONTAINER_GUIX_DOWNLOAD_PATH,
+  GUIX_CONTAINER_SDK_PATH, GUIX_CONTAINER_SDK_TARBALL, DOCKER_HOST_SHARE_ROOT
 EOF
 }
 
@@ -103,6 +117,62 @@ populate_env_forward() {
   done
 }
 
+prepare_sdk_mount() {
+  if [[ -n "$SDK_TARBALL" ]]; then
+    SDK_TARBALL="$(cd "$(dirname "$SDK_TARBALL")" && pwd -P)/$(basename "$SDK_TARBALL")"
+    if [[ ! -f "$SDK_TARBALL" ]]; then
+      echo "Missing SDK tarball: $SDK_TARBALL" >&2
+      exit 1
+    fi
+    SDK_TEMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/guix-sdk.XXXXXX")"
+    trap 'rm -rf "$SDK_TEMP_DIR"' EXIT
+    tar -C "$SDK_TEMP_DIR" -xf "$SDK_TARBALL"
+    SDK_PATH="$SDK_TEMP_DIR"
+    echo "Using SDK tarball: $SDK_TARBALL" >&2
+  elif [[ -z "$SDK_PATH" ]]; then
+    local xcode_sdk candidate
+    if [[ "$(uname -s)" == Darwin ]] && command -v xcrun >/dev/null 2>&1; then
+      xcode_sdk="$(xcrun --show-sdk-path 2>/dev/null || true)"
+      if [[ -n "$xcode_sdk" && -d "$xcode_sdk" ]]; then
+        SDK_MOUNT_ROOT="$DOCKER_HOST_SHARE_ROOT"
+        mkdir -p "$SDK_MOUNT_ROOT"
+        if [[ ! -d "$SDK_MOUNT_ROOT/$(basename "$xcode_sdk")" ]]; then
+          rsync -a "$xcode_sdk/" "$SDK_MOUNT_ROOT/$(basename "$xcode_sdk")/"
+        fi
+        trap 'rm -rf "$SDK_TEMP_DIR"' EXIT
+        MOUNT_ARGS+=(-v "${SDK_MOUNT_ROOT}:${SDK_MOUNT_ROOT}:ro")
+        SDK_PATH="$SDK_MOUNT_ROOT"
+        echo "Using system Xcode SDK: $xcode_sdk" >&2
+      fi
+    fi
+
+    if [[ -z "$SDK_PATH" ]]; then
+      for candidate in \
+        "$REPO_PATH/depends/SDKs" \
+        "$HOME/macOS-SDKs" \
+        "$HOME/Downloads/macOS-SDKs" \
+        "/Users/Shared/macOS-SDKs"
+      do
+        if dir_has_entries "$candidate"; then
+          SDK_PATH="$candidate"
+          echo "Using SDK path: $SDK_PATH" >&2
+          break
+        fi
+      done
+    fi
+  fi
+
+  if [[ -n "$SDK_PATH" ]]; then
+    SDK_PATH="$(cd "$SDK_PATH" && pwd -P)"
+    if [[ ! -d "$SDK_PATH" ]]; then
+      echo "Missing SDK path: $SDK_PATH" >&2
+      exit 1
+    fi
+    ENV_FORWARD+=(-e "SDK_PATH=${SDK_PATH}")
+    MOUNT_ARGS+=(-v "${SDK_PATH}:${SDK_PATH}:ro")
+  fi
+}
+
 start_docker_daemon() {
   if docker info >/dev/null 2>&1; then
     return 0
@@ -132,6 +202,17 @@ container_running() {
 
 container_exists() {
   "$ENGINE" ps -a --format '{{.Names}}' | grep -Fxq "$CONTAINER_NAME"
+}
+
+run_container() {
+  "$ENGINE" run -d \
+    --name "$CONTAINER_NAME" \
+    --privileged \
+    "${ENV_FORWARD[@]}" \
+    -v "${REPO_PATH}:${WORKDIR}" \
+    "${MOUNT_ARGS[@]}" \
+    -w "$WORKDIR" \
+    "$IMAGE" >/dev/null
 }
 
 while (($#)); do
@@ -188,6 +269,14 @@ while (($#)); do
       shift
       GUIX_DOWNLOAD_PATH="${1:?missing value for --guix-download-path}"
       ;;
+    --sdk-path)
+      shift
+      SDK_PATH="${1:?missing value for --sdk-path}"
+      ;;
+    --sdk-tarball)
+      shift
+      SDK_TARBALL="${1:?missing value for --sdk-tarball}"
+      ;;
     --)
       shift
       break
@@ -207,6 +296,7 @@ done
 resolve_engine
 
 REPO_PATH="$(cd "$REPO_PATH" && pwd -P)"
+prepare_sdk_mount
 populate_env_forward
 
 if [[ "$ENGINE" == docker ]]; then
@@ -268,17 +358,19 @@ EOF
 fi
 
 if container_running; then
-  :
+  if [[ -n "$SDK_PATH" ]]; then
+    echo "Container '$CONTAINER_NAME' is already running; stop it and rerun to apply SDK mounts." >&2
+    exit 1
+  fi
 elif container_exists; then
-  "$ENGINE" start "$CONTAINER_NAME" >/dev/null
+  if [[ -n "$SDK_PATH" ]]; then
+    "$ENGINE" rm "$CONTAINER_NAME" >/dev/null
+    run_container
+  else
+    "$ENGINE" start "$CONTAINER_NAME" >/dev/null
+  fi
 else
-  "$ENGINE" run -d \
-    --name "$CONTAINER_NAME" \
-    --privileged \
-    "${ENV_FORWARD[@]}" \
-    -v "${REPO_PATH}:${WORKDIR}" \
-    -w "$WORKDIR" \
-    "$IMAGE" >/dev/null
+  run_container
 fi
 
 if (($# == 0)); then
