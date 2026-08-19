@@ -15,6 +15,8 @@ AUTO_BUILD_IMAGE="${GUIX_CONTAINER_AUTO_BUILD_IMAGE:-1}"
 GUIX_DOWNLOAD_PATH="${GUIX_CONTAINER_GUIX_DOWNLOAD_PATH:-https://ftp.gnu.org/gnu/guix}"
 SDK_PATH="${GUIX_CONTAINER_SDK_PATH:-}"
 SDK_TARBALL="${GUIX_CONTAINER_SDK_TARBALL:-}"
+SDK_REPO_PATH="${GUIX_CONTAINER_SDK_REPO_PATH:-$DOCKER_HOST_SHARE_ROOT/MacOSX-SDKs}"
+SDK_REPO_URL="${GUIX_CONTAINER_SDK_REPO_URL:-git@github.com:bitcoincore-dev/MacOSX-SDKs.git}"
 AUTO_IMAGE_CONTEXT=""
 ENV_FORWARD=()
 MOUNT_ARGS=()
@@ -52,6 +54,8 @@ Options:
   --guix-download-path URL  Guix binary mirror used during image build
   --sdk-path PATH   Mount an extracted macOS SDK directory into the container
   --sdk-tarball FILE Extract an SDK tarball into a temp dir and mount it
+  --sdk-repo-path PATH  Clone or use an SDK repo checkout at PATH
+  --sdk-repo-url URL    Git URL for the SDK repo (default: $SDK_REPO_URL)
 
 Examples:
   ./scripts/guix-container-macos.sh
@@ -68,7 +72,8 @@ Environment variables:
   GUIX_CONTAINER_REPO_PATH, GUIX_CONTAINER_WORKDIR, GUIX_CONTAINER_IMAGE_CONTEXT,
   GUIX_CONTAINER_IMAGEFILE_URL, GUIX_CONTAINER_BUILD_TARGET, GUIX_CONTAINER_BUILD_NO_CACHE,
   GUIX_CONTAINER_BUILD_PULL, GUIX_CONTAINER_AUTO_BUILD_IMAGE, GUIX_CONTAINER_GUIX_DOWNLOAD_PATH,
-  GUIX_CONTAINER_SDK_PATH, GUIX_CONTAINER_SDK_TARBALL, DOCKER_HOST_SHARE_ROOT
+  GUIX_CONTAINER_SDK_PATH, GUIX_CONTAINER_SDK_TARBALL, GUIX_CONTAINER_SDK_REPO_PATH,
+  GUIX_CONTAINER_SDK_REPO_URL, DOCKER_HOST_SHARE_ROOT
 EOF
 }
 
@@ -130,6 +135,33 @@ prepare_sdk_mount() {
     SDK_PATH="$SDK_TEMP_DIR"
     echo "Using SDK tarball: $SDK_TARBALL" >&2
   elif [[ -z "$SDK_PATH" ]]; then
+    local candidate
+    if [[ -d "$SDK_REPO_PATH" ]]; then
+      if dir_has_entries "$SDK_REPO_PATH"; then
+        SDK_PATH="$SDK_REPO_PATH"
+        echo "Using SDK repo checkout: $SDK_PATH" >&2
+      elif command -v git >/dev/null 2>&1; then
+        git clone --depth 1 "$SDK_REPO_URL" "$SDK_REPO_PATH" >&2
+        SDK_PATH="$SDK_REPO_PATH"
+        echo "Using SDK repo clone: $SDK_PATH" >&2
+      else
+        echo "git is required to clone SDK repo $SDK_REPO_URL" >&2
+        exit 1
+      fi
+    else
+      mkdir -p "$(dirname "$SDK_REPO_PATH")"
+      if command -v git >/dev/null 2>&1; then
+        git clone --depth 1 "$SDK_REPO_URL" "$SDK_REPO_PATH" >&2
+        SDK_PATH="$SDK_REPO_PATH"
+        echo "Using SDK repo clone: $SDK_PATH" >&2
+      else
+        echo "git is required to clone SDK repo $SDK_REPO_URL" >&2
+        exit 1
+      fi
+    fi
+  fi
+
+  if [[ -z "$SDK_PATH" ]]; then
     local xcode_app xcode_version xcode_build_id extracted_name sdk_tarball candidate
     if [[ "$(uname -s)" == Darwin ]] && command -v xcodebuild >/dev/null 2>&1; then
       xcode_app="$(cd "$(dirname "$(dirname "$(xcode-select -p)")")" && pwd -P)"
@@ -281,6 +313,14 @@ while (($#)); do
     --sdk-tarball)
       shift
       SDK_TARBALL="${1:?missing value for --sdk-tarball}"
+      ;;
+    --sdk-repo-path)
+      shift
+      SDK_REPO_PATH="${1:?missing value for --sdk-repo-path}"
+      ;;
+    --sdk-repo-url)
+      shift
+      SDK_REPO_URL="${1:?missing value for --sdk-repo-url}"
       ;;
     --)
       shift
