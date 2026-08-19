@@ -307,8 +307,11 @@ start_docker_daemon() {
     return 1
   fi
 
-  if command -v open >/dev/null 2>&1; then
-    open -ga Docker >/dev/null 2>&1 || open -a Docker >/dev/null 2>&1 || true
+  if ! pgrep -f 'com\.docker\.(vmnetd|backend)|Docker Desktop|Docker\.app' >/dev/null 2>&1; then
+    if command -v open >/dev/null 2>&1; then
+      open -gj -a "Docker Desktop" >/dev/null 2>&1 || true
+      open -gj -a Docker >/dev/null 2>&1 || true
+    fi
   fi
 
   for _ in $(seq 1 60); do
