@@ -13,8 +13,12 @@ BUILD_NO_CACHE="${GUIX_CONTAINER_BUILD_NO_CACHE:-1}"
 BUILD_PULL="${GUIX_CONTAINER_BUILD_PULL:-1}"
 AUTO_BUILD_IMAGE="${GUIX_CONTAINER_AUTO_BUILD_IMAGE:-1}"
 GUIX_DOWNLOAD_PATH="${GUIX_CONTAINER_GUIX_DOWNLOAD_PATH:-https://ftp.gnu.org/gnu/guix}"
+DOCKER_HOST_SHARE_ROOT="${DOCKER_HOST_SHARE_ROOT:-$HOME/macOS-SDKs}"
 SDK_PATH="${GUIX_CONTAINER_SDK_PATH:-}"
 SDK_TARBALL="${GUIX_CONTAINER_SDK_TARBALL:-}"
+SDK_URL="${GUIX_CONTAINER_SDK_URL:-https://bitcoincore.org/depends-sources/sdks}"
+XCODE_VERSION="${GUIX_CONTAINER_XCODE_VERSION:-26.1.1}"
+XCODE_BUILD_ID="${GUIX_CONTAINER_XCODE_BUILD_ID:-17B100}"
 SDK_REPO_PATH="${GUIX_CONTAINER_SDK_REPO_PATH:-$DOCKER_HOST_SHARE_ROOT/MacOSX-SDKs}"
 SDK_REPO_URL="${GUIX_CONTAINER_SDK_REPO_URL:-git@github.com:bitcoincore-dev/MacOSX-SDKs.git}"
 AUTO_IMAGE_CONTEXT=""
@@ -22,11 +26,23 @@ ENV_FORWARD=()
 MOUNT_ARGS=()
 SDK_TEMP_DIR=""
 SDK_MOUNT_ROOT=""
-DOCKER_HOST_SHARE_ROOT="${DOCKER_HOST_SHARE_ROOT:-$HOME/macOS-SDKs}"
 
 dir_has_entries() {
   local dir="$1"
   [[ -d "$dir" ]] && find "$dir" -mindepth 1 -maxdepth 1 | grep -q .
+}
+
+choose_default_hosts() {
+  if [[ -n "${HOSTS:-}" ]]; then
+    return
+  fi
+
+  local avail_kib
+  avail_kib="$(df -Pk "$REPO_PATH" | awk 'NR==2 {print $4}')"
+  if [[ -n "$avail_kib" ]] && (( avail_kib < 16777216 )); then
+    HOSTS="x86_64-apple-darwin arm64-apple-darwin"
+    echo "Low disk space detected; defaulting HOSTS='$HOSTS'" >&2
+  fi
 }
 
 usage() {
@@ -54,6 +70,9 @@ Options:
   --guix-download-path URL  Guix binary mirror used during image build
   --sdk-path PATH   Mount an extracted macOS SDK directory into the container
   --sdk-tarball FILE Extract an SDK tarball into a temp dir and mount it
+  --sdk-url URL     Download extracted SDK tarballs from this URL
+  --xcode-version V  SDK version to fetch (default: $XCODE_VERSION)
+  --xcode-build-id B  SDK build id to fetch (default: $XCODE_BUILD_ID)
   --sdk-repo-path PATH  Clone or use an SDK repo checkout at PATH
   --sdk-repo-url URL    Git URL for the SDK repo (default: $SDK_REPO_URL)
 
@@ -72,8 +91,9 @@ Environment variables:
   GUIX_CONTAINER_REPO_PATH, GUIX_CONTAINER_WORKDIR, GUIX_CONTAINER_IMAGE_CONTEXT,
   GUIX_CONTAINER_IMAGEFILE_URL, GUIX_CONTAINER_BUILD_TARGET, GUIX_CONTAINER_BUILD_NO_CACHE,
   GUIX_CONTAINER_BUILD_PULL, GUIX_CONTAINER_AUTO_BUILD_IMAGE, GUIX_CONTAINER_GUIX_DOWNLOAD_PATH,
-  GUIX_CONTAINER_SDK_PATH, GUIX_CONTAINER_SDK_TARBALL, GUIX_CONTAINER_SDK_REPO_PATH,
-  GUIX_CONTAINER_SDK_REPO_URL, DOCKER_HOST_SHARE_ROOT
+  GUIX_CONTAINER_SDK_PATH, GUIX_CONTAINER_SDK_TARBALL, GUIX_CONTAINER_SDK_URL,
+  GUIX_CONTAINER_XCODE_VERSION, GUIX_CONTAINER_XCODE_BUILD_ID,
+  GUIX_CONTAINER_SDK_REPO_PATH, GUIX_CONTAINER_SDK_REPO_URL, DOCKER_HOST_SHARE_ROOT
 EOF
 }
 
@@ -134,68 +154,52 @@ prepare_sdk_mount() {
     tar -C "$SDK_TEMP_DIR" -xf "$SDK_TARBALL"
     SDK_PATH="$SDK_TEMP_DIR"
     echo "Using SDK tarball: $SDK_TARBALL" >&2
-  elif [[ -z "$SDK_PATH" ]]; then
-    local candidate
-    if [[ -d "$SDK_REPO_PATH" ]]; then
-      if dir_has_entries "$SDK_REPO_PATH"; then
-        SDK_PATH="$SDK_REPO_PATH"
-        echo "Using SDK repo checkout: $SDK_PATH" >&2
-      elif command -v git >/dev/null 2>&1; then
-        git clone --depth 1 "$SDK_REPO_URL" "$SDK_REPO_PATH" >&2
-        SDK_PATH="$SDK_REPO_PATH"
-        echo "Using SDK repo clone: $SDK_PATH" >&2
-      else
-        echo "git is required to clone SDK repo $SDK_REPO_URL" >&2
-        exit 1
-      fi
-    else
-      mkdir -p "$(dirname "$SDK_REPO_PATH")"
-      if command -v git >/dev/null 2>&1; then
-        git clone --depth 1 "$SDK_REPO_URL" "$SDK_REPO_PATH" >&2
-        SDK_PATH="$SDK_REPO_PATH"
-        echo "Using SDK repo clone: $SDK_PATH" >&2
-      else
-        echo "git is required to clone SDK repo $SDK_REPO_URL" >&2
-        exit 1
-      fi
-    fi
   fi
 
   if [[ -z "$SDK_PATH" ]]; then
-    local xcode_app xcode_version xcode_build_id extracted_name sdk_tarball candidate
-    if [[ "$(uname -s)" == Darwin ]] && command -v xcodebuild >/dev/null 2>&1; then
-      xcode_app="$(cd "$(dirname "$(dirname "$(xcode-select -p)")")" && pwd -P)"
-      if [[ -d "$xcode_app" ]]; then
-        xcode_version="$(xcodebuild -version | awk '/^Xcode / {print $2; exit}')"
-        xcode_build_id="$(xcodebuild -version | awk '/^Build version / {print $3; exit}')"
-        extracted_name="Xcode-${xcode_version}-${xcode_build_id}-extracted-SDK-with-libcxx-headers"
-        SDK_MOUNT_ROOT="$DOCKER_HOST_SHARE_ROOT"
-        mkdir -p "$SDK_MOUNT_ROOT"
-        if [[ ! -d "$SDK_MOUNT_ROOT/$extracted_name" ]]; then
-          sdk_tarball="$SDK_MOUNT_ROOT/${extracted_name}.tar"
-          python3 "$(dirname "${BASH_SOURCE[0]}")/../contrib/macdeploy/gen-sdk.py" "$xcode_app" -o "$sdk_tarball"
-          tar -C "$SDK_MOUNT_ROOT" -xf "$sdk_tarball"
-          rm -f "$sdk_tarball"
-        fi
-        MOUNT_ARGS+=(-v "${SDK_MOUNT_ROOT}:${SDK_MOUNT_ROOT}:ro")
-        SDK_PATH="$SDK_MOUNT_ROOT"
-        echo "Using system Xcode SDK: $xcode_app -> $SDK_MOUNT_ROOT/$extracted_name" >&2
+    local extracted_name candidate sdk_tarball repo_extracted
+    extracted_name="Xcode-${XCODE_VERSION}-${XCODE_BUILD_ID}-extracted-SDK-with-libcxx-headers"
+
+    for candidate in \
+      "$REPO_PATH/depends/SDKs/$extracted_name" \
+      "$DOCKER_HOST_SHARE_ROOT/$extracted_name" \
+      "$HOME/Downloads/macOS-SDKs/$extracted_name"
+    do
+      if [[ -d "$candidate" ]]; then
+        SDK_PATH="$(dirname "$candidate")"
+        echo "Using extracted SDK directory: $candidate" >&2
+        break
+      fi
+    done
+  fi
+
+  if [[ -z "$SDK_PATH" ]]; then
+    local extracted_name repo_extracted sdk_tarball
+    extracted_name="Xcode-${XCODE_VERSION}-${XCODE_BUILD_ID}-extracted-SDK-with-libcxx-headers"
+
+    if [[ -d "$SDK_REPO_PATH/$extracted_name" ]]; then
+      SDK_PATH="$SDK_REPO_PATH"
+      echo "Using SDK repo checkout: $SDK_PATH/$extracted_name" >&2
+    elif [[ ! -d "$SDK_REPO_PATH" ]]; then
+      mkdir -p "$(dirname "$SDK_REPO_PATH")"
+      if command -v git >/dev/null 2>&1; then
+        git clone --depth 1 "$SDK_REPO_URL" "$SDK_REPO_PATH" >&2
+      else
+        echo "git is required to clone SDK repo $SDK_REPO_URL" >&2
+        exit 1
       fi
     fi
-
     if [[ -z "$SDK_PATH" ]]; then
-      for candidate in \
-        "$REPO_PATH/depends/SDKs" \
-        "$HOME/macOS-SDKs" \
-        "$HOME/Downloads/macOS-SDKs" \
-        "/Users/Shared/macOS-SDKs"
-      do
-        if dir_has_entries "$candidate"; then
-          SDK_PATH="$candidate"
-          echo "Using SDK path: $SDK_PATH" >&2
-          break
-        fi
-      done
+      sdk_tarball="$DOCKER_HOST_SHARE_ROOT/${extracted_name}.tar"
+      mkdir -p "$DOCKER_HOST_SHARE_ROOT"
+      if [[ ! -f "$sdk_tarball" ]]; then
+        curl -fsSL "${SDK_URL}/${extracted_name}.tar" -o "$sdk_tarball"
+      fi
+      SDK_TEMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/guix-sdk.XXXXXX")"
+      trap 'rm -rf "$SDK_TEMP_DIR"' EXIT
+      tar -C "$SDK_TEMP_DIR" -xf "$sdk_tarball"
+      SDK_PATH="$SDK_TEMP_DIR"
+      echo "Using downloaded SDK tarball: $sdk_tarball" >&2
     fi
   fi
 
@@ -239,6 +243,10 @@ container_running() {
 
 container_exists() {
   "$ENGINE" ps -a --format '{{.Names}}' | grep -Fxq "$CONTAINER_NAME"
+}
+
+remove_container() {
+  "$ENGINE" rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
 }
 
 run_container() {
@@ -314,6 +322,18 @@ while (($#)); do
       shift
       SDK_TARBALL="${1:?missing value for --sdk-tarball}"
       ;;
+    --sdk-url)
+      shift
+      SDK_URL="${1:?missing value for --sdk-url}"
+      ;;
+    --xcode-version)
+      shift
+      XCODE_VERSION="${1:?missing value for --xcode-version}"
+      ;;
+    --xcode-build-id)
+      shift
+      XCODE_BUILD_ID="${1:?missing value for --xcode-build-id}"
+      ;;
     --sdk-repo-path)
       shift
       SDK_REPO_PATH="${1:?missing value for --sdk-repo-path}"
@@ -342,6 +362,7 @@ resolve_engine
 
 REPO_PATH="$(cd "$REPO_PATH" && pwd -P)"
 prepare_sdk_mount
+choose_default_hosts
 populate_env_forward
 
 if [[ "$ENGINE" == docker ]]; then
@@ -403,17 +424,11 @@ EOF
 fi
 
 if container_running; then
-  if [[ -n "$SDK_PATH" ]]; then
-    echo "Container '$CONTAINER_NAME' is already running; stop it and rerun to apply SDK mounts." >&2
-    exit 1
-  fi
+  "$ENGINE" stop "$CONTAINER_NAME" >/dev/null 2>&1 || true
+  remove_container
 elif container_exists; then
-  if [[ -n "$SDK_PATH" ]]; then
-    "$ENGINE" rm "$CONTAINER_NAME" >/dev/null
-    run_container
-  else
-    "$ENGINE" start "$CONTAINER_NAME" >/dev/null
-  fi
+  remove_container
+  run_container
 else
   run_container
 fi
