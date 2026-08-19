@@ -130,19 +130,24 @@ prepare_sdk_mount() {
     SDK_PATH="$SDK_TEMP_DIR"
     echo "Using SDK tarball: $SDK_TARBALL" >&2
   elif [[ -z "$SDK_PATH" ]]; then
-    local xcode_sdk candidate
-    if [[ "$(uname -s)" == Darwin ]] && command -v xcrun >/dev/null 2>&1; then
-      xcode_sdk="$(xcrun --show-sdk-path 2>/dev/null || true)"
-      if [[ -n "$xcode_sdk" && -d "$xcode_sdk" ]]; then
+    local xcode_app xcode_version xcode_build_id extracted_name sdk_tarball candidate
+    if [[ "$(uname -s)" == Darwin ]] && command -v xcodebuild >/dev/null 2>&1; then
+      xcode_app="$(cd "$(dirname "$(dirname "$(xcode-select -p)")")" && pwd -P)"
+      if [[ -d "$xcode_app" ]]; then
+        xcode_version="$(xcodebuild -version | awk '/^Xcode / {print $2; exit}')"
+        xcode_build_id="$(xcodebuild -version | awk '/^Build version / {print $3; exit}')"
+        extracted_name="Xcode-${xcode_version}-${xcode_build_id}-extracted-SDK-with-libcxx-headers"
         SDK_MOUNT_ROOT="$DOCKER_HOST_SHARE_ROOT"
         mkdir -p "$SDK_MOUNT_ROOT"
-        if [[ ! -d "$SDK_MOUNT_ROOT/$(basename "$xcode_sdk")" ]]; then
-          rsync -a "$xcode_sdk/" "$SDK_MOUNT_ROOT/$(basename "$xcode_sdk")/"
+        if [[ ! -d "$SDK_MOUNT_ROOT/$extracted_name" ]]; then
+          sdk_tarball="$SDK_MOUNT_ROOT/${extracted_name}.tar"
+          python3 "$(dirname "${BASH_SOURCE[0]}")/../contrib/macdeploy/gen-sdk.py" "$xcode_app" -o "$sdk_tarball"
+          tar -C "$SDK_MOUNT_ROOT" -xf "$sdk_tarball"
+          rm -f "$sdk_tarball"
         fi
-        trap 'rm -rf "$SDK_TEMP_DIR"' EXIT
         MOUNT_ARGS+=(-v "${SDK_MOUNT_ROOT}:${SDK_MOUNT_ROOT}:ro")
         SDK_PATH="$SDK_MOUNT_ROOT"
-        echo "Using system Xcode SDK: $xcode_sdk" >&2
+        echo "Using system Xcode SDK: $xcode_app -> $SDK_MOUNT_ROOT/$extracted_name" >&2
       fi
     fi
 
