@@ -424,8 +424,8 @@ EOF
 fi
 
 if container_running; then
-  "$ENGINE" stop "$CONTAINER_NAME" >/dev/null 2>&1 || true
   remove_container
+  run_container
 elif container_exists; then
   remove_container
   run_container
