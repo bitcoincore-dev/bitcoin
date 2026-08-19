@@ -4,6 +4,57 @@ set -euo pipefail
 GUIX_VERSION="${GUIX_VERSION:-1.4.0}"
 VM_CORES="${VM_CORES:-4}"
 VM_MEMORY_MB="${VM_MEMORY_MB:-4096}"
+QEMU_BIN="${QEMU_BIN:-}"
+
+usage() {
+  cat <<EOF
+Usage: guix-qemu-macos.sh [OPTIONS]
+
+Boot a Guix VM image on macOS using QEMU.
+
+Options:
+  -h, --help              Show this help and exit
+  --guix-version VERSION  Guix VM image version (default: $GUIX_VERSION)
+  --cores N               VM CPU cores (default: $VM_CORES)
+  --memory-mb MB          VM memory in MiB (default: $VM_MEMORY_MB)
+  --qemu-bin PATH         QEMU binary to exec (default: auto-detect by arch)
+
+Environment variables:
+  GUIX_VERSION, VM_CORES, VM_MEMORY_MB, QEMU_BIN
+EOF
+}
+
+while (($#)); do
+  case "$1" in
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --guix-version)
+      shift
+      GUIX_VERSION="${1:?missing value for --guix-version}"
+      ;;
+    --cores)
+      shift
+      VM_CORES="${1:?missing value for --cores}"
+      ;;
+    --memory-mb)
+      shift
+      VM_MEMORY_MB="${1:?missing value for --memory-mb}"
+      ;;
+    --qemu-bin)
+      shift
+      QEMU_BIN="${1:?missing value for --qemu-bin}"
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      echo >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+  shift
+done
 
 arch="$(uname -m)"
 case "$arch" in
@@ -12,8 +63,8 @@ case "$arch" in
     vm_image="guix-system-vm-image-${GUIX_VERSION}.x86_64-linux.qcow2"
     ;;
   arm64)
-    qemu_bin="${QEMU_BIN:-qemu-system-aarch64}"
-    vm_image="guix-system-vm-image-${GUIX_VERSION}.aarch64-linux.qcow2"
+    qemu_bin="${QEMU_BIN:-qemu-system-x86_64}"
+    vm_image="guix-system-vm-image-${GUIX_VERSION}.x86_64-linux.qcow2"
     ;;
   *)
     echo "Unsupported macOS architecture: $arch" >&2
@@ -36,18 +87,16 @@ if [[ ! -f "$vm_image" ]]; then
   curl -LO "https://ftp.gnu.org/gnu/guix/${vm_image}"
 fi
 
+qemu_args=(
+  -smp "cores=${VM_CORES}"
+  -m "$VM_MEMORY_MB"
+  -net user
+  -net nic,model=virtio
+  -drive "file=${vm_image},format=qcow2"
+)
+
 if [[ "$arch" == "arm64" ]]; then
-  exec "$qemu_bin" \
-    -machine virt,accel=hvf \
-    -cpu host \
-    -smp "cores=${VM_CORES}" \
-    -m "$VM_MEMORY_MB" \
-    -net user -net nic,model=virtio \
-    "$vm_image"
-else
-  exec "$qemu_bin" \
-    -smp "cores=${VM_CORES}" \
-    -m "$VM_MEMORY_MB" \
-    -net user -net nic,model=virtio \
-    "$vm_image"
+  qemu_args=(-accel tcg "${qemu_args[@]}")
 fi
+
+exec "$qemu_bin" "${qemu_args[@]}"
