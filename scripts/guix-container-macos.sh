@@ -9,6 +9,7 @@ CONTAINER_NAME="${GUIX_CONTAINER_NAME:-guix-macos}"
 REPO_PATH="${GUIX_CONTAINER_REPO_PATH:-$PWD}"
 WORKDIR="${GUIX_CONTAINER_WORKDIR:-/bitcoin}"
 BUILD_TARGET="${GUIX_CONTAINER_BUILD_TARGET:-}"
+LIST_BUILD_TARGETS=0
 BUILD_NO_CACHE="${GUIX_CONTAINER_BUILD_NO_CACHE:-1}"
 BUILD_PULL="${GUIX_CONTAINER_BUILD_PULL:-1}"
 AUTO_BUILD_IMAGE="${GUIX_CONTAINER_AUTO_BUILD_IMAGE:-1}"
@@ -31,6 +32,8 @@ ENV_FORWARD=()
 MOUNT_ARGS=()
 SDK_TEMP_DIR=""
 SDK_MOUNT_ROOT=""
+BUILD_SUBCOMMAND=0
+BUILD_SUBCOMMAND_ARGS=()
 
 dir_has_entries() {
   local dir="$1"
@@ -44,7 +47,7 @@ Release-style follow-up commands:
     source contrib/shell/git-utils.bash
   fi
   uname -m
-  build_dir="\$(find . -maxdepth 2 -type d -path './guix-build-*/output' | head -n1)"
+  build_dir="\$(find . -maxdepth 2 -type d -path './guix-build-*-'$(uname -m)'/output' | head -n1)"
   find "\$build_dir" -type f -print0 | env LC_ALL=C sort -z | xargs -r0 sha256sum
   env GUIX_SIGS_REPO=${GUIX_SIGS_CONTAINER_PATH} SIGNER=${SIGNER} ./contrib/guix/guix-attest
   git -C ${GUIX_SIGS_CONTAINER_PATH} pull
@@ -54,6 +57,12 @@ EOF
 
 choose_default_hosts() {
   if [[ -n "${HOSTS:-}" ]]; then
+    return
+  fi
+
+  if [[ "$BUILD_SUBCOMMAND" == 1 ]]; then
+    HOSTS="x86_64-apple-darwin arm64-apple-darwin"
+    echo "Defaulting build HOSTS='$HOSTS'" >&2
     return
   fi
 
@@ -67,8 +76,8 @@ choose_default_hosts() {
 
 validate_release_style_args() {
   if [[ "$RELEASE_STYLE" == 1 ]]; then
-    if [[ -z "$GUIX_SIGS_REPO" || -z "$SIGNER" ]]; then
-      echo "Release style requires --guix-sigs-repo and --signer" >&2
+    if [[ -z "$GUIX_SIGS_REPO" ]]; then
+      echo "Release style requires --guix-sigs-repo" >&2
       exit 1
     fi
   fi
@@ -105,51 +114,69 @@ prepare_gnupg_mount() {
 }
 
 resolve_signer_key() {
-  if [[ "$RELEASE_STYLE" != 1 || -z "$SIGNER" ]]; then
+  if [[ "$RELEASE_STYLE" != 1 ]]; then
     return
   fi
 
-  local signer_name="$SIGNER"
-  if [[ "$SIGNER" == *"="* ]]; then
-    signer_name="${SIGNER#*=}"
-    SIGNER="${SIGNER%%=*}"
+  local signer_name=""
+  local gpg_key_name="$SIGNER"
+  local git_signingkey=""
+  local git_name=""
+  local git_email=""
+
+  git_signingkey="$(git -C "$REPO_PATH" config --get user.signingkey 2>/dev/null || true)"
+  git_name="$(git -C "$REPO_PATH" config --get user.name 2>/dev/null || true)"
+  git_email="$(git -C "$REPO_PATH" config --get user.email 2>/dev/null || true)"
+
+  if [[ -z "$gpg_key_name" && -n "$git_signingkey" ]]; then
+    gpg_key_name="$git_signingkey"
+    signer_name="${git_name:-${git_email:-$gpg_key_name}}"
+  elif [[ -n "$gpg_key_name" && "$gpg_key_name" == *"="* ]]; then
+    signer_name="${gpg_key_name#*=}"
+    gpg_key_name="${gpg_key_name%%=*}"
   fi
 
-  if gpg --homedir "$GNUPGHOME" --list-secret-keys --keyid-format LONG "$SIGNER" >/dev/null 2>&1; then
-    SIGNER="${SIGNER}=${signer_name}"
+  if [[ -z "$signer_name" ]]; then
+    signer_name="${git_name:-${git_email:-$gpg_key_name}}"
+  fi
+
+  if [[ -n "$gpg_key_name" ]] && gpg --homedir "$GNUPGHOME" --list-secret-keys --keyid-format LONG "$gpg_key_name" >/dev/null 2>&1; then
+    SIGNER="${gpg_key_name}=${signer_name}"
     return
   fi
 
   local resolved=""
-  local current_fpr=""
+  local current_key=""
   local line
+  local needle="${git_email:-$git_name}"
   while IFS= read -r line; do
     case "$line" in
       sec\ *)
-        current_fpr=""
-        ;;
-      [[:space:]]*[0-9A-F][0-9A-F]*)
-        if [[ -n "$current_fpr" ]]; then
-          continue
+        if [[ -z "$current_key" ]]; then
+          current_key="${line#*/}"
+          current_key="${current_key%% *}"
         fi
-        current_fpr="${line//[[:space:]]/}"
         ;;
       uid\ *|[[:space:]]uid\ *)
-        if [[ -n "$current_fpr" ]] && [[ "${line,,}" == *"${SIGNER,,}"* ]]; then
-          resolved="$current_fpr"
+        if [[ -n "$current_key" ]] && [[ -n "$needle" ]] && [[ "${line,,}" == *"${needle,,}"* ]]; then
+          resolved="$current_key"
           break
         fi
         ;;
     esac
   done < <(gpg --homedir "$GNUPGHOME" --list-secret-keys --keyid-format LONG 2>/dev/null)
 
+  if [[ -z "$resolved" ]]; then
+    resolved="${gpg_key_name:-$current_key}"
+  fi
+
   if [[ -n "$resolved" ]]; then
-    echo "Resolved signer '$SIGNER' to fingerprint '$resolved'" >&2
+    echo "Resolved signer to fingerprint '$resolved'" >&2
     SIGNER="${resolved}=${signer_name}"
     return
   fi
 
-  echo "GPG can't seem to find any secret key matching '$SIGNER' in '$GNUPGHOME'" >&2
+  echo "GPG can't determine a signer automatically; pass --signer if needed" >&2
   echo "Available secret keys:" >&2
   gpg --homedir "$GNUPGHOME" --list-secret-keys --keyid-format LONG >&2 || true
   exit 1
@@ -174,14 +201,32 @@ ensure_release_style_tools() {
   exit 1
 }
 
+prepare_release_style_gpg_agent() {
+  if [[ "$RELEASE_STYLE" != 1 ]]; then
+    return
+  fi
+
+  "$ENGINE" exec "${ENV_FORWARD[@]}" "$CONTAINER_NAME" sh -lc '
+    rm -f "$GNUPGHOME"/S.gpg-agent* &&
+    gpgconf --kill gpg-agent || true &&
+    gpgconf --launch gpg-agent &&
+    gpg --homedir "$GNUPGHOME" --list-secret-keys --keyid-format LONG
+  '
+}
+
 usage() {
   cat <<EOF
-Usage: guix-container-macos.sh [OPTIONS] [COMMAND...]
+Usage: guix-container-macos.sh [OPTIONS] [SUBCOMMAND|COMMAND...]
 
 Run the Guix container image on macOS with Docker or Podman.
 
-If COMMAND is omitted, an interactive shell is started inside the container.
-Pass '--' before COMMAND arguments if the command itself accepts flags.
+If no SUBCOMMAND/COMMAND is provided, an interactive shell is started inside
+the container.
+
+Subcommands:
+  build   Run ./contrib/guix/guix-build inside the container
+
+Pass '--' before command arguments if the command itself accepts flags.
 
 Options:
   -h, --help        Show this help and exit
@@ -194,7 +239,7 @@ Options:
   --workdir PATH    Container workdir / mount point (default: $WORKDIR)
   --stop            Stop the container and exit
   --no-auto-build   Do not build the image if it is missing
-  --build-target T  Build target to pass to the image build
+  --build-target T  Build target to pass to the image build (empty lists targets)
   --build-allow-cache  Allow cache when building the image
   --guix-download-path URL  Guix binary mirror used during image build
   --sdk-path PATH   Mount an extracted macOS SDK directory into the container
@@ -211,8 +256,9 @@ Options:
 
 Examples:
   ./scripts/guix-container-macos.sh
-  ./scripts/guix-container-macos.sh ./contrib/guix/guix-build
-  ./scripts/guix-container-macos.sh --image-context /path/to/guix ./contrib/guix/guix-build
+  ./scripts/guix-container-macos.sh build
+  ./scripts/guix-container-macos.sh build --force
+  ./scripts/guix-container-macos.sh --image-context /path/to/guix build
 
 Note:
   ./contrib/guix/guix-build checks for a clean worktree before parsing its own
@@ -443,7 +489,13 @@ while (($#)); do
       ;;
     --build-target)
       shift
-      BUILD_TARGET="${1:?missing value for --build-target}"
+      if [[ $# -eq 0 || -z "${1:-}" ]]; then
+        LIST_BUILD_TARGETS=1
+        BUILD_TARGET=""
+      else
+        BUILD_TARGET="$1"
+        shift
+      fi
       ;;
     --build-allow-cache)
       BUILD_NO_CACHE=0
@@ -511,6 +563,35 @@ while (($#)); do
   shift
 done
 
+if (($#)) && [[ "$1" == build ]]; then
+  BUILD_SUBCOMMAND=1
+  shift
+  BUILD_SUBCOMMAND_ARGS=("$@")
+  set --
+fi
+
+if [[ "$BUILD_SUBCOMMAND" == 1 && ${#BUILD_SUBCOMMAND_ARGS[@]} -gt 0 ]]; then
+  set -- "${BUILD_SUBCOMMAND_ARGS[@]}"
+  BUILD_SUBCOMMAND_ARGS=()
+  while (($#)); do
+    case "$1" in
+      --build-target)
+        shift
+        if (($#)) && [[ -n "${1:-}" ]] && [[ "$1" != --* ]]; then
+          BUILD_TARGET="$1"
+          shift
+        else
+          LIST_BUILD_TARGETS=1
+        fi
+        ;;
+      *)
+        BUILD_SUBCOMMAND_ARGS+=("$1")
+        shift
+        ;;
+    esac
+  done
+fi
+
 resolve_engine
 
 REPO_PATH="$(cd "$REPO_PATH" && pwd -P)"
@@ -549,6 +630,20 @@ build_image() {
   "$ENGINE" build "${build_args[@]}" -t "$IMAGE" -f "$build_context/imagefile" "$build_context"
 }
 
+list_build_targets() {
+  local imagefile="$1"
+  awk '
+    BEGIN { IGNORECASE = 1 }
+    /^FROM[[:space:]]/ {
+      for (i = 1; i <= NF; i++) {
+        if (tolower($i) == "as" && i < NF) {
+          print $(i + 1)
+        }
+      }
+    }
+  ' "$imagefile" | sort -u
+}
+
 prepare_image_context() {
   local context="$1"
   if [[ -n "$context" ]]; then
@@ -565,6 +660,16 @@ prepare_image_context() {
   trap 'rm -rf "$AUTO_IMAGE_CONTEXT"' EXIT
   curl -fsSL "$IMAGEFILE_URL" -o "$AUTO_IMAGE_CONTEXT/imagefile"
 }
+
+if [[ "$LIST_BUILD_TARGETS" == 1 ]]; then
+  if [[ -n "$IMAGE_CONTEXT" ]]; then
+    prepare_image_context "$IMAGE_CONTEXT"
+  else
+    prepare_image_context ""
+  fi
+  list_build_targets "$AUTO_IMAGE_CONTEXT/imagefile"
+  exit 0
+fi
 
 if ! "$ENGINE" image inspect "$IMAGE" >/dev/null 2>&1; then
   if [[ "$AUTO_BUILD_IMAGE" != 1 ]]; then
@@ -590,12 +695,21 @@ else
   run_container
 fi
 
+if [[ "$BUILD_SUBCOMMAND" == 1 ]]; then
+  if ((${#BUILD_SUBCOMMAND_ARGS[@]})); then
+    set -- ./contrib/guix/guix-build "${BUILD_SUBCOMMAND_ARGS[@]}"
+  else
+    set -- ./contrib/guix/guix-build
+  fi
+fi
+
 if (($# == 0)); then
   set -- /bin/bash
 fi
 
 if [[ "$RELEASE_STYLE" == 1 ]]; then
   ensure_release_style_tools
+  prepare_release_style_gpg_agent
   print_release_style_help
 fi
 
