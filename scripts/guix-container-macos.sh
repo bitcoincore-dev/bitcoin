@@ -40,7 +40,9 @@ dir_has_entries() {
 print_release_style_help() {
   cat <<EOF >&2
 Release-style follow-up commands:
-  source contrib/shell/git-utils.bash
+  if [ -f contrib/shell/git-utils.bash ]; then
+    source contrib/shell/git-utils.bash
+  fi
   uname -m
   build_dir="\$(find . -maxdepth 2 -type d -path './guix-build-*/output' | head -n1)"
   find "\$build_dir" -type f -print0 | env LC_ALL=C sort -z | xargs -r0 sha256sum
