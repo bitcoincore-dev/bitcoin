@@ -6,6 +6,19 @@ VM_CORES="${VM_CORES:-4}"
 VM_MEMORY_MB="${VM_MEMORY_MB:-4096}"
 QEMU_BIN="${QEMU_BIN:-}"
 
+die() {
+  echo "Error: $*" >&2
+  exit 1
+}
+
+require_command() {
+  command -v "$1" >/dev/null 2>&1 || die "'$1' is required"
+}
+
+brew_formula_available() {
+  brew info --formula "$1" >/dev/null 2>&1
+}
+
 usage() {
   cat <<EOF
 Usage: guix-qemu-macos.sh [OPTIONS]
@@ -72,14 +85,33 @@ case "$arch" in
     ;;
 esac
 
-if ! command -v brew >/dev/null 2>&1; then
-  echo "brew is required to install qemu on macOS" >&2
-  exit 1
+require_command brew
+require_command curl
+
+brew_prefix="$(brew --prefix)"
+case "${arch}:${brew_prefix}" in
+  arm64:/opt/homebrew|x86_64:/usr/local)
+    ;;
+  *)
+    echo "Warning: Homebrew prefix '$brew_prefix' does not match '$arch'; use the matching Homebrew for this shell" >&2
+    ;;
+esac
+
+if ! command -v "$qemu_bin" >/dev/null 2>&1; then
+  if ! brew_formula_available ninja; then
+    die "Homebrew formula 'ninja' is unavailable; run 'brew update' and retry"
+  fi
+
+  if ! brew_formula_available qemu; then
+    die "Homebrew formula 'qemu' is unavailable; run 'brew update' and retry"
+  fi
+
+  echo "Installing ninja and qemu with Homebrew..." >&2
+  brew install ninja qemu
 fi
 
 if ! command -v "$qemu_bin" >/dev/null 2>&1; then
-  echo "Installing qemu with Homebrew..." >&2
-  brew install qemu
+  die "QEMU binary '$qemu_bin' is still unavailable; check Homebrew PATH and retry"
 fi
 
 if [[ ! -f "$vm_image" ]]; then
