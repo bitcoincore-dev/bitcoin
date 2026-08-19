@@ -104,6 +104,57 @@ prepare_gnupg_mount() {
   ENV_FORWARD+=(-e "GNUPGHOME=${GNUPGHOME}")
 }
 
+resolve_signer_key() {
+  if [[ "$RELEASE_STYLE" != 1 || -z "$SIGNER" ]]; then
+    return
+  fi
+
+  local signer_name="$SIGNER"
+  if [[ "$SIGNER" == *"="* ]]; then
+    signer_name="${SIGNER#*=}"
+    SIGNER="${SIGNER%%=*}"
+  fi
+
+  if gpg --homedir "$GNUPGHOME" --list-secret-keys --keyid-format LONG "$SIGNER" >/dev/null 2>&1; then
+    SIGNER="${SIGNER}=${signer_name}"
+    return
+  fi
+
+  local resolved=""
+  local current_fpr=""
+  local line
+  while IFS= read -r line; do
+    case "$line" in
+      sec\ *)
+        current_fpr=""
+        ;;
+      [[:space:]]*[0-9A-F][0-9A-F]*)
+        if [[ -n "$current_fpr" ]]; then
+          continue
+        fi
+        current_fpr="${line//[[:space:]]/}"
+        ;;
+      uid\ *|[[:space:]]uid\ *)
+        if [[ -n "$current_fpr" ]] && [[ "${line,,}" == *"${SIGNER,,}"* ]]; then
+          resolved="$current_fpr"
+          break
+        fi
+        ;;
+    esac
+  done < <(gpg --homedir "$GNUPGHOME" --list-secret-keys --keyid-format LONG 2>/dev/null)
+
+  if [[ -n "$resolved" ]]; then
+    echo "Resolved signer '$SIGNER' to fingerprint '$resolved'" >&2
+    SIGNER="${resolved}=${signer_name}"
+    return
+  fi
+
+  echo "GPG can't seem to find any secret key matching '$SIGNER' in '$GNUPGHOME'" >&2
+  echo "Available secret keys:" >&2
+  gpg --homedir "$GNUPGHOME" --list-secret-keys --keyid-format LONG >&2 || true
+  exit 1
+}
+
 ensure_release_style_tools() {
   if [[ "$RELEASE_STYLE" != 1 ]]; then
     return
@@ -468,6 +519,7 @@ choose_default_hosts
 validate_release_style_args
 prepare_guix_sigs_mount
 prepare_gnupg_mount
+resolve_signer_key
 populate_env_forward
 
 if [[ "$ENGINE" == docker ]]; then
