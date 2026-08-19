@@ -11,6 +11,13 @@ QEMU_VGA="${QEMU_VGA:-virtio}"
 QEMU_WINDOW_SIZE="${QEMU_WINDOW_SIZE:-}"
 QEMU_OSASCRIPT_FULLSCREEN="${QEMU_OSASCRIPT_FULLSCREEN:-0}"
 QEMU_OSASCRIPT_PROCESS="${QEMU_OSASCRIPT_PROCESS:-}"
+QEMU_OSASCRIPT_ZOOM_TO_FIT="${QEMU_OSASCRIPT_ZOOM_TO_FIT:-0}"
+QEMU_SHARE_REPO="${QEMU_SHARE_REPO:-0}"
+QEMU_SHARE_PATH="${QEMU_SHARE_PATH:-}"
+QEMU_SHARE_MOUNT_TAG="${QEMU_SHARE_MOUNT_TAG:-repo}"
+QEMU_SHARE_READONLY="${QEMU_SHARE_READONLY:-1}"
+QEMU_SSH_FORWARD="${QEMU_SSH_FORWARD:-0}"
+QEMU_SSH_PORT="${QEMU_SSH_PORT:-2222}"
 
 usage() {
   cat <<EOF
@@ -30,10 +37,19 @@ Options:
   --window-size WxH       Resize the QEMU window after launch using osascript
   --osascript-fullscreen  Toggle macOS fullscreen after launch using osascript
   --osascript-process P   Process/window name for osascript (default: auto-detect)
+  --zoom-to-fit           Click View -> Zoom to Fit after launch
+  --share-repo            Share the current directory into the guest over 9p
+  --share-path PATH       Share a specific host directory instead of $PWD
+  --share-mount-tag TAG   9p mount tag to use in the guest (default: $QEMU_SHARE_MOUNT_TAG)
+  --share-rw              Share the repo read-write instead of read-only
+  --ssh-forward           Forward host port to guest SSH port 22
+  --ssh-port PORT         Host port to forward to guest SSH (default: $QEMU_SSH_PORT)
 
 Environment variables:
   GUIX_VERSION, VM_CORES, VM_MEMORY_MB, QEMU_BIN, QEMU_DISPLAY, QEMU_FULLSCREEN, QEMU_VGA,
-  QEMU_WINDOW_SIZE, QEMU_OSASCRIPT_FULLSCREEN, QEMU_OSASCRIPT_PROCESS
+  QEMU_WINDOW_SIZE, QEMU_OSASCRIPT_FULLSCREEN, QEMU_OSASCRIPT_PROCESS, QEMU_OSASCRIPT_ZOOM_TO_FIT,
+  QEMU_SHARE_REPO, QEMU_SHARE_PATH, QEMU_SHARE_MOUNT_TAG, QEMU_SHARE_READONLY,
+  QEMU_SSH_FORWARD, QEMU_SSH_PORT
 EOF
 }
 
@@ -81,6 +97,30 @@ while (($#)); do
       shift
       QEMU_OSASCRIPT_PROCESS="${1:?missing value for --osascript-process}"
       ;;
+    --zoom-to-fit)
+      QEMU_OSASCRIPT_ZOOM_TO_FIT=1
+      ;;
+    --share-repo)
+      QEMU_SHARE_REPO=1
+      ;;
+    --share-path)
+      shift
+      QEMU_SHARE_PATH="${1:?missing value for --share-path}"
+      ;;
+    --share-mount-tag)
+      shift
+      QEMU_SHARE_MOUNT_TAG="${1:?missing value for --share-mount-tag}"
+      ;;
+    --share-rw)
+      QEMU_SHARE_READONLY=0
+      ;;
+    --ssh-forward)
+      QEMU_SSH_FORWARD=1
+      ;;
+    --ssh-port)
+      shift
+      QEMU_SSH_PORT="${1:?missing value for --ssh-port}"
+      ;;
     *)
       echo "Unknown option: $1" >&2
       echo >&2
@@ -125,11 +165,21 @@ fi
 qemu_args=(
   -smp "cores=${VM_CORES}"
   -m "$VM_MEMORY_MB"
-  -net user
-  -net nic,model=virtio
   -vga "$QEMU_VGA"
   -drive "file=${vm_image},format=qcow2"
 )
+
+if [[ "$QEMU_SSH_FORWARD" == 1 ]]; then
+  qemu_args+=(
+    -netdev "user,id=net0,hostfwd=tcp::${QEMU_SSH_PORT}-:22"
+    -device "virtio-net-pci,netdev=net0"
+  )
+else
+  qemu_args+=(
+    -net user
+    -net nic,model=virtio
+  )
+fi
 
 if [[ "$arch" == "arm64" ]]; then
   qemu_args=(-accel tcg "${qemu_args[@]}")
@@ -142,8 +192,17 @@ fi
 
 qemu_args=(-display "$display_arg" "${qemu_args[@]}")
 
-if [[ -z "$QEMU_WINDOW_SIZE" && "$QEMU_OSASCRIPT_FULLSCREEN" == 0 ]]; then
-  exec "$qemu_bin" "${qemu_args[@]}"
+if [[ "$QEMU_SHARE_REPO" == 1 ]]; then
+  share_repo_path="${QEMU_SHARE_PATH:-$PWD}"
+  share_repo_path="$(cd "$share_repo_path" && pwd -P)"
+  share_ro_opt=""
+  if [[ "$QEMU_SHARE_READONLY" == 1 ]]; then
+    share_ro_opt=",readonly=on"
+  fi
+  qemu_args+=(
+    -fsdev "local,id=repo,path=${share_repo_path},security_model=none${share_ro_opt}"
+    -device "virtio-9p-pci,fsdev=repo,mount_tag=${QEMU_SHARE_MOUNT_TAG}"
+  )
 fi
 
 qemu_process_name="${QEMU_OSASCRIPT_PROCESS:-$(basename "$qemu_bin")}"
@@ -199,8 +258,34 @@ end tell
 EOF
 }
 
+zoom_to_fit() {
+  osascript <<EOF
+tell application "System Events"
+  repeat until exists process "${qemu_process_name}"
+    delay 0.2
+  end repeat
+  tell process "${qemu_process_name}"
+    repeat until exists window 1
+      delay 0.2
+    end repeat
+    set frontmost to true
+    click menu item "Zoom to Fit" of menu "View" of menu bar 1
+  end tell
+end tell
+EOF
+}
+
 "$qemu_bin" "${qemu_args[@]}" &
 qemu_pid=$!
+
+if [[ "$QEMU_SHARE_REPO" == 1 ]]; then
+  cat >&2 <<EOF
+Shared repo enabled.
+Inside the guest, mount it with:
+  sudo mkdir -p /mnt/${QEMU_SHARE_MOUNT_TAG}
+  sudo mount -t 9p -o trans=virtio,version=9p2000.L ${QEMU_SHARE_MOUNT_TAG} /mnt/${QEMU_SHARE_MOUNT_TAG}
+EOF
+fi
 
 if [[ -n "$QEMU_WINDOW_SIZE" ]]; then
   resize_window "$window_width" "$window_height"
@@ -208,6 +293,10 @@ fi
 
 if [[ "$QEMU_OSASCRIPT_FULLSCREEN" == 1 ]]; then
   toggle_fullscreen
+fi
+
+if [[ "$QEMU_OSASCRIPT_ZOOM_TO_FIT" == 1 ]]; then
+  zoom_to_fit
 fi
 
 wait "$qemu_pid"

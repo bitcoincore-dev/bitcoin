@@ -14,6 +14,7 @@ BUILD_PULL="${GUIX_CONTAINER_BUILD_PULL:-1}"
 AUTO_BUILD_IMAGE="${GUIX_CONTAINER_AUTO_BUILD_IMAGE:-1}"
 GUIX_DOWNLOAD_PATH="${GUIX_CONTAINER_GUIX_DOWNLOAD_PATH:-https://ftp.gnu.org/gnu/guix}"
 AUTO_IMAGE_CONTEXT=""
+ENV_FORWARD=()
 
 usage() {
   cat <<EOF
@@ -22,6 +23,7 @@ Usage: guix-container-macos.sh [OPTIONS] [COMMAND...]
 Run the Guix container image on macOS with Docker or Podman.
 
 If COMMAND is omitted, an interactive shell is started inside the container.
+Pass '--' before COMMAND arguments if the command itself accepts flags.
 
 Options:
   -h, --help        Show this help and exit
@@ -37,6 +39,16 @@ Options:
   --build-target T  Build target to pass to the image build
   --build-allow-cache  Allow cache when building the image
   --guix-download-path URL  Guix binary mirror used during image build
+
+Examples:
+  ./scripts/guix-container-macos.sh
+  ./scripts/guix-container-macos.sh ./contrib/guix/guix-build
+  ./scripts/guix-container-macos.sh --image-context /path/to/guix ./contrib/guix/guix-build
+
+Note:
+  ./contrib/guix/guix-build checks for a clean worktree before parsing its own
+  help flags, so '... guix-build -h' will still fail on a dirty repo unless you
+  export FORCE_DIRTY_WORKTREE=1 or run it from a clean tree.
 
 Environment variables:
   GUIX_CONTAINER_ENGINE, GUIX_CONTAINER_IMAGE, GUIX_CONTAINER_NAME,
@@ -80,6 +92,15 @@ resolve_engine() {
   if [[ "$ENGINE" == podman ]]; then
     podman machine start >/dev/null 2>&1 || true
   fi
+}
+
+populate_env_forward() {
+  local var
+  for var in FORCE_DIRTY_WORKTREE GUIX_BUILD_OPTIONS SOURCE_DATE_EPOCH HOSTS JOBS ADDITIONAL_GUIX_COMMON_FLAGS ADDITIONAL_GUIX_BUILD_FLAGS BASE_CACHE SOURCES_PATH SDK_PATH; do
+    if [[ ${!var-} != "" ]]; then
+      ENV_FORWARD+=(-e "${var}=${!var}")
+    fi
+  done
 }
 
 start_docker_daemon() {
@@ -186,6 +207,7 @@ done
 resolve_engine
 
 REPO_PATH="$(cd "$REPO_PATH" && pwd -P)"
+populate_env_forward
 
 if [[ "$ENGINE" == docker ]]; then
   if ! start_docker_daemon; then
@@ -253,6 +275,7 @@ else
   "$ENGINE" run -d \
     --name "$CONTAINER_NAME" \
     --privileged \
+    "${ENV_FORWARD[@]}" \
     -v "${REPO_PATH}:${WORKDIR}" \
     -w "$WORKDIR" \
     "$IMAGE" >/dev/null
@@ -262,4 +285,4 @@ if (($# == 0)); then
   set -- /bin/bash
 fi
 
-exec "$ENGINE" exec -it "$CONTAINER_NAME" "$@"
+exec "$ENGINE" exec -it "${ENV_FORWARD[@]}" "$CONTAINER_NAME" "$@"
