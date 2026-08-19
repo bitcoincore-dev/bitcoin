@@ -24,6 +24,7 @@ SDK_REPO_URL="${GUIX_CONTAINER_SDK_REPO_URL:-git@github.com:bitcoincore-dev/MacO
 GUIX_SIGS_REPO="${GUIX_CONTAINER_GUIX_SIGS_REPO:-}"
 SIGNER="${GUIX_CONTAINER_SIGNER:-}"
 RELEASE_STYLE="${GUIX_CONTAINER_RELEASE_STYLE:-0}"
+GUIX_SIGS_CONTAINER_PATH="/bitcoin/guix.sigs"
 AUTO_IMAGE_CONTEXT=""
 ENV_FORWARD=()
 MOUNT_ARGS=()
@@ -67,6 +68,21 @@ validate_release_style_args() {
       exit 1
     fi
   fi
+}
+
+prepare_guix_sigs_mount() {
+  if [[ -z "$GUIX_SIGS_REPO" ]]; then
+    return
+  fi
+
+  GUIX_SIGS_REPO="$(cd "$GUIX_SIGS_REPO" && pwd -P)"
+  if [[ ! -d "$GUIX_SIGS_REPO" ]]; then
+    echo "Missing guix.sigs repo: $GUIX_SIGS_REPO" >&2
+    exit 1
+  fi
+
+  MOUNT_ARGS+=(-v "${GUIX_SIGS_REPO}:${GUIX_SIGS_CONTAINER_PATH}")
+  ENV_FORWARD+=(-e "GUIX_SIGS_REPO=${GUIX_SIGS_CONTAINER_PATH}")
 }
 
 usage() {
@@ -403,6 +419,7 @@ REPO_PATH="$(cd "$REPO_PATH" && pwd -P)"
 prepare_sdk_mount
 choose_default_hosts
 validate_release_style_args
+prepare_guix_sigs_mount
 populate_env_forward
 
 if [[ "$ENGINE" == docker ]]; then
