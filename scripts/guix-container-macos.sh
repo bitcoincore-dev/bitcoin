@@ -21,6 +21,9 @@ XCODE_VERSION="${GUIX_CONTAINER_XCODE_VERSION:-26.1.1}"
 XCODE_BUILD_ID="${GUIX_CONTAINER_XCODE_BUILD_ID:-17B100}"
 SDK_REPO_PATH="${GUIX_CONTAINER_SDK_REPO_PATH:-$DOCKER_HOST_SHARE_ROOT/MacOSX-SDKs}"
 SDK_REPO_URL="${GUIX_CONTAINER_SDK_REPO_URL:-git@github.com:bitcoincore-dev/MacOSX-SDKs.git}"
+GUIX_SIGS_REPO="${GUIX_CONTAINER_GUIX_SIGS_REPO:-}"
+SIGNER="${GUIX_CONTAINER_SIGNER:-}"
+RELEASE_STYLE="${GUIX_CONTAINER_RELEASE_STYLE:-0}"
 AUTO_IMAGE_CONTEXT=""
 ENV_FORWARD=()
 MOUNT_ARGS=()
@@ -30,6 +33,18 @@ SDK_MOUNT_ROOT=""
 dir_has_entries() {
   local dir="$1"
   [[ -d "$dir" ]] && find "$dir" -mindepth 1 -maxdepth 1 | grep -q .
+}
+
+print_release_style_help() {
+  cat <<EOF >&2
+Release-style follow-up commands:
+  source contrib/shell/git-utils.bash
+  uname -m
+  find guix-build-\$(git_head_version)/output/ -type f -print0 | env LC_ALL=C sort -z | xargs -r0 sha256sum
+  env GUIX_SIGS_REPO=<path/to/guix.sigs> SIGNER=<gpg-key-name> ./contrib/guix/guix-attest
+  git -C <path/to/guix.sigs> pull
+  env GUIX_SIGS_REPO=<path/to/guix.sigs> ./contrib/guix/guix-verify
+EOF
 }
 
 choose_default_hosts() {
@@ -42,6 +57,15 @@ choose_default_hosts() {
   if [[ -n "$avail_kib" ]] && (( avail_kib < 16777216 )); then
     HOSTS="x86_64-apple-darwin arm64-apple-darwin"
     echo "Low disk space detected; defaulting HOSTS='$HOSTS'" >&2
+  fi
+}
+
+validate_release_style_args() {
+  if [[ "$RELEASE_STYLE" == 1 ]]; then
+    if [[ -z "$GUIX_SIGS_REPO" || -z "$SIGNER" ]]; then
+      echo "Release style requires --guix-sigs-repo and --signer" >&2
+      exit 1
+    fi
   fi
 }
 
@@ -75,6 +99,9 @@ Options:
   --xcode-build-id B  SDK build id to fetch (default: $XCODE_BUILD_ID)
   --sdk-repo-path PATH  Clone or use an SDK repo checkout at PATH
   --sdk-repo-url URL    Git URL for the SDK repo (default: $SDK_REPO_URL)
+  --release-style      Print post-build release steps
+  --guix-sigs-repo PATH  Path to guix.sigs for attest/verify
+  --signer NAME       GPG key name for guix-attest
 
 Examples:
   ./scripts/guix-container-macos.sh
@@ -93,7 +120,8 @@ Environment variables:
   GUIX_CONTAINER_BUILD_PULL, GUIX_CONTAINER_AUTO_BUILD_IMAGE, GUIX_CONTAINER_GUIX_DOWNLOAD_PATH,
   GUIX_CONTAINER_SDK_PATH, GUIX_CONTAINER_SDK_TARBALL, GUIX_CONTAINER_SDK_URL,
   GUIX_CONTAINER_XCODE_VERSION, GUIX_CONTAINER_XCODE_BUILD_ID,
-  GUIX_CONTAINER_SDK_REPO_PATH, GUIX_CONTAINER_SDK_REPO_URL, DOCKER_HOST_SHARE_ROOT
+  GUIX_CONTAINER_SDK_REPO_PATH, GUIX_CONTAINER_SDK_REPO_URL, DOCKER_HOST_SHARE_ROOT,
+  GUIX_CONTAINER_GUIX_SIGS_REPO, GUIX_CONTAINER_SIGNER, GUIX_CONTAINER_RELEASE_STYLE
 EOF
 }
 
@@ -342,6 +370,17 @@ while (($#)); do
       shift
       SDK_REPO_URL="${1:?missing value for --sdk-repo-url}"
       ;;
+    --release-style)
+      RELEASE_STYLE=1
+      ;;
+    --guix-sigs-repo)
+      shift
+      GUIX_SIGS_REPO="${1:?missing value for --guix-sigs-repo}"
+      ;;
+    --signer)
+      shift
+      SIGNER="${1:?missing value for --signer}"
+      ;;
     --)
       shift
       break
@@ -363,6 +402,7 @@ resolve_engine
 REPO_PATH="$(cd "$REPO_PATH" && pwd -P)"
 prepare_sdk_mount
 choose_default_hosts
+validate_release_style_args
 populate_env_forward
 
 if [[ "$ENGINE" == docker ]]; then
@@ -435,6 +475,10 @@ fi
 
 if (($# == 0)); then
   set -- /bin/bash
+fi
+
+if [[ "$RELEASE_STYLE" == 1 ]]; then
+  print_release_style_help
 fi
 
 exec "$ENGINE" exec -it "${ENV_FORWARD[@]}" "$CONTAINER_NAME" "$@"
