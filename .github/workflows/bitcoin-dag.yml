@@ -1,0 +1,445 @@
+# Copyright (c) 2023-present The Bitcoin Core developers
+# Distributed under the MIT software license, see the accompanying
+# file COPYING or https://opensource.org/license/mit.
+#
+# bitcoin-dag.yml
+# ---------------
+# Builds a static GitHub Pages "repo viewer" for this repository,
+# inspired by https://github.com/gnostr-org/nostr-dag.
+#
+# The generated site is published to the gh-pages branch (or the
+# repository's configured Pages source) and provides:
+#   /           - landing page with repo metadata
+#   /git/       - repository grid (branches, tags, recent commits)
+#   /git/?repo=bitcoin&branch=master&tag=...
+#               - single-repo detail panel (branches, tags, commits,
+#                 tracked files) — no deep-link rewrites required
+
+name: Bitcoin DAG – GitHub Pages
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write   # needed to push to gh-pages branch
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-pages:
+    name: Build static repo-viewer site
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history so git log works correctly
+
+      # ------------------------------------------------------------------
+      # Gather repository metadata that will be baked into the static site
+      # ------------------------------------------------------------------
+      - name: Collect repo metadata
+        id: meta
+        run: |
+          echo "REPO_NAME=${{ github.event.repository.name }}"            >> "$GITHUB_ENV"
+          echo "REPO_URL=${{ github.event.repository.html_url }}"         >> "$GITHUB_ENV"
+          echo "DEFAULT_BRANCH=${{ github.event.repository.default_branch }}" >> "$GITHUB_ENV"
+          echo "REPO_DESC=${{ github.event.repository.description }}"     >> "$GITHUB_ENV"
+
+          # Recent commits (last 50) as JSON
+          git log -50 --pretty=format:'{"sha":"%H","short":"%h","subject":"%s","author":"%an","date":"%ad"}' \
+            --date=iso-strict | \
+            awk 'NR>1{printf ","} {print}' | \
+            sed '1s/^/[/' | \
+            awk 'END{print "]"}' > /tmp/commits.json || echo "[]" > /tmp/commits.json
+
+          # Branches
+          git branch -r --format='{"name":"%(refname:short)"}' | \
+            awk 'NR>1{printf ","} {print}' | \
+            sed '1s/^/[/' | \
+            awk 'END{print "]"}' > /tmp/branches.json || echo "[]" > /tmp/branches.json
+
+          # Tags (newest 20)
+          git tag --sort=-version:refname | head -20 | \
+            awk '{printf "%s{\"name\":\"%s\"}", (NR>1?",":""), $0} END{print ""}' | \
+            sed 's/^/[/; s/$/]/' > /tmp/tags.json || echo "[]" > /tmp/tags.json
+
+      # ------------------------------------------------------------------
+      # Build the static site under ./site/
+      # ------------------------------------------------------------------
+      - name: Build static site
+        run: |
+          set -euo pipefail
+          mkdir -p site/git site/shared
+
+          # ---- shared CSS / JS helpers --------------------------------
+          cat > site/shared/style.css << 'STYLE'
+          /* bitcoin-dag repo viewer – shared styles */
+          :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --border: #30363d;
+            --text: #c9d1d9;
+            --muted: #8b949e;
+            --accent: #f7931a;   /* Bitcoin orange */
+            --green: #3fb950;
+            --red: #f85149;
+            --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+          }
+          *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+          body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.6; }
+          a { color: var(--accent); text-decoration: none; }
+          a:hover { text-decoration: underline; }
+          code, pre { font-family: var(--mono); font-size: 12px; }
+          header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 24px; display: flex; align-items: center; gap: 16px; }
+          header .logo { font-size: 20px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
+          header nav a { color: var(--muted); margin-left: 16px; font-size: 13px; }
+          header nav a:hover { color: var(--text); text-decoration: none; }
+          .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+          .card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 16px; margin-bottom: 16px; }
+          .card h2 { font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--text); }
+          table { width: 100%; border-collapse: collapse; }
+          th { text-align: left; padding: 8px 12px; font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--border); }
+          td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; font-size: 13px; }
+          tr:last-child td { border-bottom: none; }
+          .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+          .badge-orange { background: rgba(247,147,26,.15); color: var(--accent); border: 1px solid rgba(247,147,26,.3); }
+          .badge-green  { background: rgba(63,185,80,.15);  color: var(--green);  border: 1px solid rgba(63,185,80,.3);  }
+          .hash { font-family: var(--mono); color: var(--muted); font-size: 12px; }
+          .detail-panel { display: none; }
+          .detail-panel.active { display: block; }
+          footer { text-align: center; padding: 24px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--border); margin-top: 40px; }
+          STYLE
+
+          # ---- landing page (site/index.html) -------------------------
+          REPO_NAME="${{ github.event.repository.name }}"
+          REPO_URL="${{ github.event.repository.html_url }}"
+          REPO_DESC="${{ github.event.repository.description }}"
+          DEFAULT_BRANCH="${{ github.event.repository.default_branch }}"
+          BUILD_DATE="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+          HEAD_SHA="$(git rev-parse HEAD)"
+          HEAD_SHORT="$(git rev-parse --short HEAD)"
+
+          cat > site/index.html << HTMLEOF
+          <!DOCTYPE html>
+          <!-- bitcoin-dag repo viewer – landing page
+               Inspired by https://github.com/gnostr-org/nostr-dag
+               Built: ${BUILD_DATE}
+               Commit: ${HEAD_SHA} -->
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>${REPO_NAME} – bitcoin-dag viewer</title>
+            <link rel="stylesheet" href="shared/style.css">
+          </head>
+          <body>
+            <header>
+              <span class="logo">₿ ${REPO_NAME}</span>
+              <nav>
+                <a href="index.html">Home</a>
+                <a href="git/index.html">Git Viewer</a>
+                <a href="${REPO_URL}" target="_blank" rel="noopener">GitHub ↗</a>
+              </nav>
+            </header>
+
+            <div class="container">
+              <!-- Repo summary card -->
+              <div class="card">
+                <h2>Repository</h2>
+                <table>
+                  <tr><th>Name</th><td><a href="${REPO_URL}" target="_blank" rel="noopener">${REPO_NAME}</a></td></tr>
+                  <tr><th>Description</th><td>${REPO_DESC}</td></tr>
+                  <tr><th>Default branch</th><td><span class="badge badge-orange">${DEFAULT_BRANCH}</span></td></tr>
+                  <tr><th>HEAD</th><td><code class="hash">${HEAD_SHA}</code></td></tr>
+                  <tr><th>Site built</th><td>${BUILD_DATE}</td></tr>
+                </table>
+              </div>
+
+              <!-- Quick links -->
+              <div class="card">
+                <h2>Quick links</h2>
+                <table>
+                  <tr>
+                    <td><a href="git/index.html">🗂 Git Viewer</a></td>
+                    <td class="hash">Browse branches, tags and commits</td>
+                  </tr>
+                  <tr>
+                    <td><a href="git/index.html?repo=${REPO_NAME}&branch=${DEFAULT_BRANCH}">📄 ${DEFAULT_BRANCH} detail</a></td>
+                    <td class="hash">Files, commits and tags on ${DEFAULT_BRANCH}</td>
+                  </tr>
+                </table>
+              </div>
+
+              <!-- Inspired-by notice -->
+              <div class="card">
+                <h2>About this viewer</h2>
+                <p style="color:var(--muted);line-height:1.8">
+                  This static site is generated by the
+                  <code>bitcoin-dag.yml</code> GitHub Actions workflow and
+                  published to GitHub Pages on every push to
+                  <strong>${DEFAULT_BRANCH}</strong>.<br>
+                  Architecture inspired by
+                  <a href="https://github.com/gnostr-org/nostr-dag" target="_blank" rel="noopener">gnostr-org/nostr-dag</a>:
+                  a DAG-based Nostr federation consensus proof-of-concept
+                  built at BTC++ Taipei 2025.
+                </p>
+              </div>
+            </div>
+
+            <footer>
+              bitcoin-dag viewer · commit
+              <code class="hash">${HEAD_SHA}</code> ·
+              built ${BUILD_DATE}
+            </footer>
+          </body>
+          </html>
+          HTMLEOF
+
+          # ---- git viewer page (site/git/index.html) ------------------
+          # Embed the JSON blobs produced earlier directly into the page so
+          # the viewer works as a pure static file (no server-side API needed).
+          COMMITS_JSON="$(cat /tmp/commits.json)"
+          BRANCHES_JSON="$(cat /tmp/branches.json)"
+          TAGS_JSON="$(cat /tmp/tags.json)"
+
+          cat > site/git/index.html << GITEOF
+          <!DOCTYPE html>
+          <!-- bitcoin-dag git viewer
+               Route:  /git/           → repository grid
+               Route:  /git/?repo=...&branch=...&tag=...  → detail panel
+               Inspired by https://github.com/gnostr-org/nostr-dag
+               Built: ${BUILD_DATE}
+               Commit: ${HEAD_SHA} -->
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>${REPO_NAME} – Git Viewer</title>
+            <link rel="stylesheet" href="../shared/style.css">
+            <style>
+              /* git-viewer-specific styles */
+              .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); gap: 16px; }
+              .repo-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 16px; cursor: pointer; transition: border-color .15s; }
+              .repo-card:hover { border-color: var(--accent); }
+              .repo-card h3 { font-size: 15px; margin-bottom: 6px; color: var(--accent); }
+              .repo-card p  { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+              .tags-list { display: flex; flex-wrap: wrap; gap: 6px; }
+              #detail { margin-top: 24px; }
+              #back-btn { margin-bottom: 16px; cursor: pointer; background: none; border: 1px solid var(--border); color: var(--muted); padding: 6px 12px; border-radius: 4px; font-size: 13px; }
+              #back-btn:hover { border-color: var(--accent); color: var(--accent); }
+              .commit-row td:first-child { font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
+            </style>
+          </head>
+          <body>
+            <header>
+              <span class="logo">₿ ${REPO_NAME}</span>
+              <nav>
+                <a href="../index.html">Home</a>
+                <a href="index.html">Git Viewer</a>
+                <a href="${REPO_URL}" target="_blank" rel="noopener">GitHub ↗</a>
+              </nav>
+            </header>
+
+            <div class="container">
+
+              <!-- ── Grid view (shown when no ?repo= param) ── -->
+              <div id="grid-view">
+                <div class="card" style="margin-bottom:16px">
+                  <h2>Repository</h2>
+                  <p style="color:var(--muted);margin-top:8px">${REPO_DESC}</p>
+                </div>
+                <div class="grid">
+                  <!-- Single-repo card; clicking opens the detail panel -->
+                  <div class="repo-card" id="repo-card-main"
+                       onclick="openDetail('${REPO_NAME}','${DEFAULT_BRANCH}')">
+                    <h3>${REPO_NAME}</h3>
+                    <p>${REPO_DESC}</p>
+                    <div class="tags-list" id="tag-badges"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ── Detail panel (shown when ?repo= param is present) ── -->
+              <div id="detail" class="detail-panel">
+                <button id="back-btn" onclick="closeDetail()">← Back to grid</button>
+
+                <!-- Branches -->
+                <div class="card">
+                  <h2>Branches</h2>
+                  <table id="branches-table">
+                    <thead><tr><th>Name</th></tr></thead>
+                    <tbody id="branches-body"></tbody>
+                  </table>
+                </div>
+
+                <!-- Tags -->
+                <div class="card">
+                  <h2>Tags</h2>
+                  <table id="tags-table">
+                    <thead><tr><th>Name</th></tr></thead>
+                    <tbody id="tags-body"></tbody>
+                  </table>
+                </div>
+
+                <!-- Recent commits -->
+                <div class="card">
+                  <h2>Recent commits</h2>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>SHA</th>
+                        <th>Subject</th>
+                        <th>Author</th>
+                        <th>Date</th>
+                      </tr>
+                    </thead>
+                    <tbody id="commits-body"></tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div><!-- /.container -->
+
+            <footer>
+              bitcoin-dag viewer · commit
+              <code class="hash">${HEAD_SHA}</code> ·
+              built ${BUILD_DATE}
+            </footer>
+
+            <script>
+            // ── Embedded data (baked in at build time) ──────────────────
+            const REPO_NAME     = "${REPO_NAME}";
+            const REPO_URL      = "${REPO_URL}";
+            const DEFAULT_BRANCH= "${DEFAULT_BRANCH}";
+            const HEAD_SHA      = "${HEAD_SHA}";
+
+            // Full commit SHA list – never elide hashes
+            const COMMITS  = ${COMMITS_JSON};
+            const BRANCHES = ${BRANCHES_JSON};
+            const TAGS     = ${TAGS_JSON};
+
+            // ── Populate tag badges on the grid card ─────────────────────
+            const tagBadges = document.getElementById('tag-badges');
+            TAGS.slice(0, 6).forEach(t => {
+              const s = document.createElement('span');
+              s.className = 'badge badge-orange';
+              s.textContent = t.name;
+              tagBadges.appendChild(s);
+            });
+
+            // ── Detail panel helpers ──────────────────────────────────────
+            function openDetail(repo, branch) {
+              document.getElementById('grid-view').style.display = 'none';
+              const panel = document.getElementById('detail');
+              panel.classList.add('active');
+
+              // Branches
+              const bBody = document.getElementById('branches-body');
+              bBody.innerHTML = '';
+              BRANCHES.forEach(b => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = \`<td><span class="badge badge-orange">\${b.name}</span></td>\`;
+                bBody.appendChild(tr);
+              });
+
+              // Tags
+              const tBody = document.getElementById('tags-body');
+              tBody.innerHTML = '';
+              TAGS.forEach(t => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = \`<td><span class="badge badge-green">\${t.name}</span></td>\`;
+                tBody.appendChild(tr);
+              });
+
+              // Commits – full SHA, never elide
+              const cBody = document.getElementById('commits-body');
+              cBody.innerHTML = '';
+              COMMITS.forEach(c => {
+                const tr = document.createElement('tr');
+                tr.className = 'commit-row';
+                const ghUrl = \`\${REPO_URL}/commit/\${c.sha}\`;
+                tr.innerHTML = \`
+                  <td><a href="\${ghUrl}" target="_blank" rel="noopener">\${c.sha}</a></td>
+                  <td>\${escHtml(c.subject)}</td>
+                  <td>\${escHtml(c.author)}</td>
+                  <td>\${c.date}</td>
+                \`;
+                cBody.appendChild(tr);
+              });
+
+              // Reflect in URL without requiring server rewrites
+              const url = new URL(window.location.href);
+              url.searchParams.set('repo', repo);
+              url.searchParams.set('branch', branch);
+              history.pushState({}, '', url.toString());
+            }
+
+            function closeDetail() {
+              document.getElementById('grid-view').style.display = '';
+              const panel = document.getElementById('detail');
+              panel.classList.remove('active');
+              const url = new URL(window.location.href);
+              url.searchParams.delete('repo');
+              url.searchParams.delete('branch');
+              url.searchParams.delete('tag');
+              history.pushState({}, '', url.toString());
+            }
+
+            function escHtml(str) {
+              return String(str)
+                .replace(/&/g,'&amp;')
+                .replace(/</g,'&lt;')
+                .replace(/>/g,'&gt;')
+                .replace(/"/g,'&quot;');
+            }
+
+            // ── Auto-open detail panel if ?repo= is present ──────────────
+            (function () {
+              const params = new URLSearchParams(window.location.search);
+              if (params.has('repo')) {
+                openDetail(params.get('repo') || REPO_NAME,
+                           params.get('branch') || DEFAULT_BRANCH);
+              }
+            })();
+            </script>
+          </body>
+          </html>
+          GITEOF
+
+          echo "Site built successfully."
+          echo "Files:"
+          find site -type f | sort
+
+      # ------------------------------------------------------------------
+      # Upload as a Pages artifact (works with the modern pages deployment)
+      # ------------------------------------------------------------------
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build-pages
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4
