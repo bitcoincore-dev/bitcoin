@@ -732,7 +732,6 @@ void RPCConsole::setClientModel(ClientModel *model, int bestblock_height, int64_
         ui->blocksDir->setText(model->blocksDir());
         ui->startupTime->setText(model->formatClientStartupTime());
         ui->networkName->setText(QString::fromStdString(Params().GetChainTypeString()));
-        ui->networkName->setWordWrap(true);
 
         if (Params().GetChainTypeString() == "signet") {
             std::vector<uint8_t> vChallenge = Params().GetConsensus().signet_challenge;
